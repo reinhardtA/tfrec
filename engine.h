@@ -25,7 +25,8 @@ public:
    ~engine(void);
    void run(int timeout);
 
-   void get_properties(string &vendor, string &product, string &serial) {
+   void get_properties(string &vendor, string &product, string &serial)
+   {
       /*		if (s) {
        s->get_properties(vendor, product, serial);
        }

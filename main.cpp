@@ -22,7 +22,7 @@
  Allows test decoding of already demodulated mmessages
  */
 void read_raw_msgs(vector<demodulator*> *demods, char *test_file)
-   {
+{
    FILE *fd = fopen(test_file, "r");
    if (!fd)
    {
@@ -57,13 +57,13 @@ void read_raw_msgs(vector<demodulator*> *demods, char *test_file)
 }
 //-------------------------------------------------------------------------
 void timeout_handler(int sig)
-   {
+{
    fprintf(stderr, "Read timeout, exiting\n");
    exit(-1);
 }
 //-------------------------------------------------------------------------
 void usage(void)
-   {
+{
    fprintf(stderr,
       "tfrec - Receiver for TFA IT+ (and compatible) sensors\n"
          "Options:\n"
@@ -93,7 +93,7 @@ void usage(void)
 }
 //-------------------------------------------------------------------------
 int main(int argc, char **argv)
-   {
+{
    int gain = -1;
    int freq = 868250;
    int thresh = 0; // Auto

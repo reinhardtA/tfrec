@@ -16,7 +16,7 @@
 
 //-------------------------------------------------------------------------
 fsk_demod::fsk_demod(vector<demodulator*> *_demods, int _thresh, int _dbg)
-   {
+{
    demods = _demods;
    dbg = _dbg;
    thresh = _thresh;
@@ -33,7 +33,7 @@ fsk_demod::fsk_demod(vector<demodulator*> *_demods, int _thresh, int _dbg)
 }
 //-------------------------------------------------------------------------
 void fsk_demod::process(int16_t *data_iq, int len)
-   {
+{
    int triggered = 0;
    runs++;
    for (int n = 0; n < demods->size(); n++)

@@ -26,7 +26,7 @@
 
 //-------------------------------------------------------------------------
 sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
-   {
+{
    buffer = 0;
    wr_ptr = 0;
    rd_ptr = 0;
@@ -72,12 +72,12 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
 }
 //-------------------------------------------------------------------------
 sdr::~sdr(void)
-   {
+{
    stop();
 }
 //-------------------------------------------------------------------------
 int sdr::search_device(char *substr)
-   {
+{
    int i, device_count, device, offset;
    char *s2;
    char vendor[256], product[256], serial[256], sum[768];
@@ -108,7 +108,7 @@ int sdr::search_device(char *substr)
 }
 //-------------------------------------------------------------------------
 int sdr::start(void)
-   {
+{
    if (!dev)
       return -1;
 
@@ -121,7 +121,7 @@ int sdr::start(void)
 }
 //-------------------------------------------------------------------------
 int sdr::stop(void)
-   {
+{
    if (r_thread)
    {
       rtlsdr_cancel_async(dev);
@@ -135,7 +135,7 @@ int sdr::stop(void)
 //-------------------------------------------------------------------------
 // l: number of samples
 int sdr::set_buffer_len(int l)
-   {
+{
    if (running)
       return 0;
    if (buffer)
@@ -150,7 +150,7 @@ int sdr::set_buffer_len(int l)
 }
 //-------------------------------------------------------------------------
 int sdr::set_frequency(uint32_t f)
-   {
+{
    if (!dev)
       return -1;
    int r;
@@ -162,7 +162,7 @@ int sdr::set_frequency(uint32_t f)
 }
 //-------------------------------------------------------------------------
 int sdr::nearest_gain(int g)
-   {
+{
    int i, r, err1, err2, count, nearest;
    int *gains;
    r = rtlsdr_set_tuner_gain_mode(dev, 1);
@@ -194,7 +194,7 @@ int sdr::nearest_gain(int g)
 //-------------------------------------------------------------------------
 // mode=0 -> auto gain
 int sdr::set_gain(int mode, float g)
-   {
+{
    if (!dev)
       return -1;
    int r;
@@ -219,7 +219,7 @@ int sdr::set_gain(int mode, float g)
 }
 //-------------------------------------------------------------------------
 int sdr::set_ppm(int p)
-   {
+{
    if (!dev)
       return -1;
    int r = rtlsdr_set_freq_correction(dev, p);
@@ -228,7 +228,7 @@ int sdr::set_ppm(int p)
 }
 //-------------------------------------------------------------------------
 int sdr::set_samplerate(int s)
-   {
+{
    if (!dev)
       return -1;
    int r;
@@ -241,7 +241,7 @@ int sdr::set_samplerate(int s)
 //-------------------------------------------------------------------------
 
 void sdr::read_data(unsigned char *buf, uint32_t len)
-   {
+{
 //	printf("Got %i\n",len);
    int w = wr_ptr;
 
@@ -259,7 +259,7 @@ void sdr::read_data(unsigned char *buf, uint32_t len)
 }
 //-------------------------------------------------------------------------
 static void sdr_read_callback(unsigned char *buf, uint32_t len, void *ctx)
-   {
+{
    if (!ctx)
       return;
 
@@ -269,14 +269,14 @@ static void sdr_read_callback(unsigned char *buf, uint32_t len, void *ctx)
 }
 //-------------------------------------------------------------------------
 void sdr::read_thread(void)
-   {
+{
    if (dbg)
       printf("START READ THREAD\n");
    rtlsdr_read_async(dev, sdr_read_callback, this, 0, buffer_len / 8);
 }
 //-------------------------------------------------------------------------
 int sdr::wait(int16_t *&d, int &len)
-   {
+{
    safe_cond_wait(&ready, &ready_m);
    d = buffer + rd_ptr;
    if (rd_ptr < wr_ptr)
@@ -287,7 +287,7 @@ int sdr::wait(int16_t *&d, int &len)
 }
 //-------------------------------------------------------------------------
 void sdr::done(int len)
-   {
+{
    int r = rd_ptr + len;
    if (r >= buffer_len)
       r = r - buffer_len;

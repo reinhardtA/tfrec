@@ -105,7 +105,7 @@ whb_decoder::whb_decoder(sensor_e _type)
 }
 //-------------------------------------------------------------------------
 double whb_decoder::cvt_temp(uint16_t raw)
-   {
+{
    if (raw & 0x400)
       return -((raw ^ 0x7ff) + 1) / 10.0;
    else
@@ -114,7 +114,7 @@ double whb_decoder::cvt_temp(uint16_t raw)
 //-------------------------------------------------------------------------
 // Temp/hum
 void whb_decoder::decode_02(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint16_t temp = BE16(msg+2) & 0x7ff;
    uint16_t temp_prev = BE16(msg+4) & 0x7ff;
@@ -140,7 +140,7 @@ void whb_decoder::decode_02(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Temp/hum
 void whb_decoder::decode_03(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint16_t temp = BE16(msg+2) & 0x7ff;
    uint16_t hum = BE16(msg+4) & 0xff;
@@ -170,7 +170,7 @@ void whb_decoder::decode_03(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Temp/hum/water
 void whb_decoder::decode_04(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint16_t temp = BE16(msg+2) & 0x7ff;
    uint16_t hum = BE16(msg+4) & 0xff;
@@ -206,7 +206,7 @@ void whb_decoder::decode_04(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Temp/hum + temp2
 void whb_decoder::decode_06(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    ;
    uint16_t temp = BE16(msg+2) & 0x7ff;
@@ -242,7 +242,7 @@ void whb_decoder::decode_06(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Station MA10410 (TFA 35.1147.01)
 void whb_decoder::decode_07(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint16_t temp[4]; // 0=indoor, 2/3: previous
    uint16_t hum[4];
@@ -280,7 +280,7 @@ void whb_decoder::decode_07(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Rain sensor, store counter and temperature
 void whb_decoder::decode_08(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint8_t event = msg[2] >> 6;
    uint16_t temp = BE16(msg+2) & 0x07ff; // 11Bit signed, 0.1steps
@@ -320,7 +320,7 @@ void whb_decoder::decode_08(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Wind sensor
 void whb_decoder::decode_0b(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint32_t seq = BE24(msg);
    float dir[6], speed[6], gust[6];
    uint32_t times[6];
@@ -358,7 +358,7 @@ void whb_decoder::decode_0b(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Door sensor
 void whb_decoder::decode_10(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint8_t state[4];
    uint32_t times[4];
@@ -388,7 +388,7 @@ void whb_decoder::decode_10(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // 4 Thermo-hygro-sensors (TFA 30.3060.01)
 void whb_decoder::decode_11(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint16_t temp[8]; // 3 = indoor, >3: previous values
    uint16_t hum[8];
@@ -431,7 +431,7 @@ void whb_decoder::decode_11(uint8_t *msg, uint64_t id, int rssi, int offset)
 //-------------------------------------------------------------------------
 // Humidity guard 
 void whb_decoder::decode_12(uint8_t *msg, uint64_t id, int rssi, int offset)
-   {
+{
    uint16_t seq = BE16(msg) & 0x3fff;
    uint16_t hum[5];
    hum[0] = msg[8] & 0x7f;
@@ -473,7 +473,7 @@ void whb_decoder::decode_12(uint8_t *msg, uint64_t id, int rssi, int offset)
 }
 //-------------------------------------------------------------------------
 void whb_decoder::flush(int rssi, int offset)
-   {
+{
    uint32_t crc_calc = 0;
    uint32_t crc_val = 0;
    int plen;
@@ -564,7 +564,7 @@ void whb_decoder::flush(int rssi, int offset)
 }
 //-------------------------------------------------------------------------
 void whb_decoder::store_bit(int bit)
-   {
+{
    // De-PSK
    if (bit == last_bit)
       psk = 1 - psk;
@@ -583,7 +583,7 @@ void whb_decoder::store_bit(int bit)
 
    if (((sr & 0xffffffff) == 0x2bd42d4b))
    { // FIXME 3 or 4 bytes?
-      //printf("######################### SYNC\n");
+     //printf("######################### SYNC\n");
       synced = 1;
       sr_cnt = 0;
       rdata[0] = sr & 0xff;
@@ -619,7 +619,7 @@ whb_demod::whb_demod(decoder *_dec, double _spb)
 }
 //-------------------------------------------------------------------------
 void whb_demod::reset(void)
-   {
+{
    offset = 0;
    bitcnt = 0;
    last_peak = 0;
@@ -635,7 +635,7 @@ static FILE *fy=NULL;
 static int fc=0;
 #endif
 int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
-   {
+{
    int triggered = 0;
 
    if (pwr > thresh)

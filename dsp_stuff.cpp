@@ -26,7 +26,7 @@
 //-------------------------------------------------------------------------
 // 2nd order butterworth lowpass
 iir2::iir2(double cutoff)
-   {
+{
    yn = yn1 = yn2 = 0;
    dn1 = dn2 = 0;
    //printf("%f %f %f %f %f\n",a1,a2,b0,b1,b2);
@@ -34,7 +34,7 @@ iir2::iir2(double cutoff)
 }
 //-------------------------------------------------------------------------
 void iir2::set(double cutoff)
-   {
+{
    double i = 1.0 / tan(M_PI * cutoff);
    double s = sqrt(2);
    b0 = 1 / (1 + s * i + i * i);
@@ -45,7 +45,7 @@ void iir2::set(double cutoff)
 }
 //-------------------------------------------------------------------------
 double iir2::step(double dn)
-   {
+{
    yn2 = yn1;
    yn1 = yn;
    yn = b0 * dn + b1 * dn1 + b2 * dn2 + a1 * yn1 + a2 * yn2;
@@ -143,7 +143,7 @@ static int16_t dec_filter_taps2w[DEC_TAP_NUM2] =
    };
 
 decimate::decimate(void)
-   {
+{
    for (int i = 0; i < 2 * DEC_TAP_NUM1; i++)
    {
       hist[i] = 0;
@@ -153,7 +153,7 @@ decimate::decimate(void)
 }
 //-------------------------------------------------------------------------
 decimate::~decimate(void)
-   {
+{
 }
 
 //-------------------------------------------------------------------------
@@ -171,7 +171,7 @@ decimate::~decimate(void)
  */
 // Data: IQ with int16_t (-> step 2 for each sample)
 int decimate::process2x(int16_t *data, int length, int type)
-   {
+{
    int shift = 16;
    int16_t t0[DEC_TAP_NUM1];
    int16_t *taps = dec_filter_taps1;
@@ -205,7 +205,7 @@ int decimate::process2x(int16_t *data, int length, int type)
 }
 //-------------------------------------------------------------------------
 int decimate::process2x1(int16_t *data, int length)
-   {
+{
    int shift = 16;
    int16_t t0[DEC_TAP_NUM2];
    int16_t *taps = dec_filter_taps2;
@@ -234,18 +234,18 @@ int decimate::process2x1(int16_t *data, int length)
 }
 //-------------------------------------------------------------------------
 downconvert::downconvert(int p)
-   {
+{
    passes = p;
    dec_i.resize(passes);
    dec_q.resize(passes);
 }
 //-------------------------------------------------------------------------
 downconvert::~downconvert(void)
-   {
+{
 }
 //-------------------------------------------------------------------------
 int downconvert::process_iq(int16_t *data_iq, int len, int filter_type)
-   {
+{
    int ft = filter_type;
 #if 1
    for (int i = 0; i < passes - 1; i++)
@@ -272,7 +272,7 @@ int downconvert::process_iq(int16_t *data_iq, int len, int filter_type)
 // It doesn't need to be linear, nor do we care about frequency shift direction
 //-------------------------------------------------------------------------
 int fm_dev_nrzs(int ar, int aj, int br, int bj)
-   {
+{
    int cr = ar * br + aj * bj;
 
    // This limits also the max RSSI
@@ -287,7 +287,7 @@ int fm_dev_nrzs(int ar, int aj, int br, int bj)
 //-------------------------------------------------------------------------
 #if 1
 int fm_dev(int ar, int aj, int br, int bj)
-   {
+{
    double cr, cj;
    double angle;
    cr = ((double) ar) * br + ((double) aj) * bj;

@@ -10,7 +10,7 @@
 
 //-------------------------------------------------------------------------
 engine::engine(int _device, uint32_t freq, int gain, int filter, fsk_demod *_fsk, int _dbg, int _dumpmode, char *_dumpfile)
-   {
+{
    freq = freq * 1000; // kHz->Hz
    srate = 1536000;
    filter_type = filter;
@@ -41,11 +41,11 @@ engine::engine(int _device, uint32_t freq, int gain, int filter, fsk_demod *_fsk
 }
 //-------------------------------------------------------------------------
 engine::~engine(void)
-   {
+{
 }
 //-------------------------------------------------------------------------
 void engine::run(int timeout)
-   {
+{
    FILE *dump_fd = NULL;
 
    if (dumpmode >= 0)

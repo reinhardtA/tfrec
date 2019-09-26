@@ -2,8 +2,13 @@
 #define _INCLUDE_TFA5H
 
 #include <string>
-#include "dsp_stuff.h"
+
+// Base Classes
 #include "decoder.h"
+#include "demodulator.h"
+
+// Helper
+#include "dsp_stuff.h"
 #include "crc32.h"
 
 using std::string;

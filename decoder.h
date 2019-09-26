@@ -35,52 +35,54 @@ typedef struct
 class decoder
 {
 public:
+
    decoder(sensor_e _type);
+
    void set_params(char *_handler, int _mode, int _dbg);
+
    virtual void store_bit(int bit);
+
    virtual void flush(int rssi, int offset = 0);
+
    virtual void store_data(sensordata_t &d);
+
    virtual void execute_handler(sensordata_t &d);
+
    virtual void flush_storage(void);
-   virtual int has_sync(void) {
+
+   virtual int has_sync(void)
+   {
       return synced;
    }
-   ;
-   int count(void) {
+
+   int count(void)
+   {
       return data.size();
    }
-   sensor_e get_type(void) {
+
+   sensor_e get_type(void)
+   {
       return type;
    }
+
    virtual void store_bytes(uint8_t *d, int len);
-   protected:
+
+protected:
+
    int dbg;
    int bad;
    int synced;
    sensor_e type;
    uint8_t rdata[256];
    int byte_cnt;
-   private:
 
-   char *handler;
+private:
+
+   char * handler;
    int mode;
    map<uint64_t, sensordata_t> data;
+
 };
 
-class demodulator
-{
-public:
-   demodulator(decoder *_dec);
-   virtual void start(int len);
-   virtual void reset(void) {
-   }
-   ;
-   virtual int demod(int thresh, int pwr, int index, int16_t *iq);
-
-   decoder *dec;
-   protected:
-
-   int last_bit_idx;
-};
 
 #endif

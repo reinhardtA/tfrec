@@ -2,9 +2,15 @@
 #define _INCLUDE_TFA1H
 
 #include <string>
+
+// Base Classes
 #include "decoder.h"
+#include "demodulator.h"
+
+// Helper
 #include "crc8.h"
 
+// TODO : remove
 using std::string;
 
 class tfa1_decoder: public decoder

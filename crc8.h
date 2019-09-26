@@ -8,8 +8,10 @@ class crc8
 public:
    crc8(int poly);
    uint8_t calc(uint8_t *data, int len);
-   private:
+
+private:
    uint8_t lookup[256];
+
 };
 
 #endif

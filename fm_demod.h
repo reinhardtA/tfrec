@@ -14,6 +14,7 @@
 using std::vector;
 
 #include "decoder.h"
+#include "demodulator.h"
 
 class fsk_demod
 {

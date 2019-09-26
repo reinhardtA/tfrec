@@ -1,8 +1,8 @@
 #include "crc8.h"
 
 //-------------------------------------------------------------------------
-crc8::crc8(int poly)
-   {
+crc8::crc8(int paramPolynom)
+{
    int n, m;
    for (n = 0; n < 256; n++)
    {
@@ -10,7 +10,7 @@ crc8::crc8(int poly)
       for (m = 0; m < 8; m++)
       {
          if ((t & 0x80) != 0)
-            t = (t << 1) ^ poly;
+            t = (t << 1) ^ paramPolynom;
          else
             t = t << 1;
       }
@@ -19,7 +19,7 @@ crc8::crc8(int poly)
 }
 //-------------------------------------------------------------------------
 uint8_t crc8::calc(uint8_t *data, int len)
-   {
+{
    int n;
    uint8_t crc = 0;
 

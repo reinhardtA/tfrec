@@ -64,7 +64,7 @@ tfa2_decoder::tfa2_decoder(sensor_e _type)
 }
 //-------------------------------------------------------------------------
 void tfa2_decoder::flush(int rssi, int offset)
-   {
+{
    if (type == TX22)
       flush_tx22(rssi, offset);
    else
@@ -72,7 +72,7 @@ void tfa2_decoder::flush(int rssi, int offset)
 }
 //-------------------------------------------------------------------------
 void tfa2_decoder::flush_tx22(int rssi, int offset)
-   {
+{
    uint8_t crc_val, crc_calc;
 
    if (byte_cnt >= 7 && byte_cnt < 64)
@@ -108,7 +108,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
          switch (t)
          {
          case 0:
-         { // Temp
+            { // Temp
             double v = (rdata[4 + n * 2] & 0xf) * 100 +
                (rdata[4 + n * 2 + 1] >> 4) * 10 +
                (rdata[4 + n * 2 + 1] & 0xf);
@@ -117,7 +117,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
          }
             break;
          case 1:
-         { // Hum
+            { // Hum
             int v = (rdata[4 + n * 2] & 0xf) * 100 +
                (rdata[4 + n * 2 + 1] >> 4) * 10 +
                (rdata[4 + n * 2 + 1] & 0xf);
@@ -126,7 +126,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
          }
             break;
          case 2:
-         { // rain counter
+            { // rain counter
             int v = ((rdata[4 + n * 2] & 0xf) << 8) +
                rdata[4 + n * 2 + 1];
             rain = v;
@@ -134,7 +134,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
          }
             break;
          case 3:
-         { // wind dir/speed
+            { // wind dir/speed
             double d = (rdata[4 + n * 2] & 0xf) * 22.5;
             double s = rdata[4 + n * 2 + 1] / 10.0;
             wdir = d;
@@ -143,7 +143,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
          }
             break;
          case 4:
-         { // gust
+            { // gust
             double s = (((rdata[4 + n * 2] & 0xf) << 8) +
                rdata[4 + n * 2 + 1]) / 10.0;
             wgust = s;
@@ -235,7 +235,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
 }
 //-------------------------------------------------------------------------
 void tfa2_decoder::flush_tfa(int rssi, int offset)
-   {
+{
    //printf(" CNT %i\n",byte_cnt);
    if (byte_cnt >= 7)
    {
@@ -304,12 +304,12 @@ void tfa2_decoder::flush_tfa(int rssi, int offset)
 }
 //-------------------------------------------------------------------------
 void tfa2_decoder::store_bit(int bit)
-   {
+{
    //	printf("%i %04x\n",bit,sr&0xffff);
    sr = (sr << 1) | (bit);
    if ((sr & 0xffff) == 0x2dd4)
    { // Sync start
-      //printf("SYNC\n");
+     //printf("SYNC\n");
       sr_cnt = 0;
       rdata[0] = (sr >> 8) & 0xff;
       byte_cnt = 1;
@@ -354,7 +354,7 @@ tfa2_demod::tfa2_demod(decoder *_dec, double _spb, double _iir_fac)
 }
 //-------------------------------------------------------------------------
 void tfa2_demod::reset(void)
-   {
+{
    offset = 0;
    bitcnt = 0;
    dmin = 32767;
@@ -375,7 +375,7 @@ int fc=0;
 // Real FM/NRZ demodulation (compared to tfa1.cpp...)
 // Note: index increases by 2 for each IQ-sample!
 int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
-   {
+{
    int triggered = 0;
    int ld = 0;
 
@@ -435,7 +435,7 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
                int numbits = (bit_diff + (est_spb / 2)) / est_spb;
                if (numbits < 32)
                { // Sanity
-                  //printf("   %i %i %i %i nb %i %.1f\n",  bit,last_bit,dev,(index-last_bit_idx)/2,numbits,fnumbits);
+                 //printf("   %i %i %i %i nb %i %.1f\n",  bit,last_bit,dev,(index-last_bit_idx)/2,numbits,fnumbits);
                   for (int n = 1; n < numbits; n++)
                   {
                      dec->store_bit(last_bit);

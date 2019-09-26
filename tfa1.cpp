@@ -47,7 +47,7 @@ tfa1_decoder::tfa1_decoder(sensor_e _type)
 }
 //-------------------------------------------------------------------------
 void tfa1_decoder::flush(int rssi, int offset)
-   {
+{
    if (byte_cnt >= 10)
    {
       if (dbg)
@@ -127,7 +127,7 @@ void tfa1_decoder::flush(int rssi, int offset)
 }
 //-------------------------------------------------------------------------
 void tfa1_decoder::store_bit(int bit)
-   {
+{
    sr = (sr >> 1) | (bit << 31);
    if ((sr & 0xffff) == 0xd42d)
    { // Sync start
@@ -154,7 +154,7 @@ tfa1_demod::tfa1_demod(decoder *_dec)
 }
 //-------------------------------------------------------------------------
 int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
-   {
+{
    int triggered = 0;
 
    if (pwr > thresh)

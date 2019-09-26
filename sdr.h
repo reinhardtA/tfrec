@@ -26,7 +26,8 @@ public:
    sdr(int serial = 0, int dbg = 0, int dumpmode = 0, char *dumpfile = NULL);
    ~sdr(void);
 
-   void get_properties(string &vend, string &prod, string &ser) {
+   void get_properties(string &vend, string &prod, string &ser)
+   {
       vend = vendor;
       prod = product;
       ser = serial;

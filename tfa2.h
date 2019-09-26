@@ -2,10 +2,16 @@
 #define _INCLUDE_TFA2H
 
 #include <string>
-#include "dsp_stuff.h"
+
+// BAses Classes
 #include "decoder.h"
+#include "demodulator.h"
+
+// Helper
+#include "dsp_stuff.h"
 #include "crc8.h"
 
+// TODO : remove
 using std::string;
 
 class tfa2_decoder: public decoder
