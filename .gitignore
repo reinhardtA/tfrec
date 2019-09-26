@@ -1,0 +1,5 @@
+*.o
+tfrec
+.depend
+.cproject
+.project

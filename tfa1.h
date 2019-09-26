@@ -9,26 +9,27 @@ using std::string;
 
 class tfa1_decoder: public decoder
 {
- public:
-	tfa1_decoder(sensor_e _type);
-	void store_bit(int bit);
-	void flush(int rssi, int offset=0);
- private:
-	uint32_t sr;
-        int sr_cnt;
-        int snum;
-	crc8 *crc;
+public:
+   tfa1_decoder(sensor_e _type);
+   void store_bit(int bit);
+   void flush(int rssi, int offset = 0);
+   private:
+   uint32_t sr;
+   int sr_cnt;
+   int snum;
+   crc8 *crc;
 };
 
-class tfa1_demod: public demodulator {
- public:
-	tfa1_demod( decoder *_dec);
-	int demod(int thresh, int pwr, int index, int16_t *iq);
+class tfa1_demod: public demodulator
+{
+public:
+   tfa1_demod(decoder *_dec);
+   int demod(int thresh, int pwr, int index, int16_t *iq);
 
- private:
-	int timeout_cnt;
-	int last_i, last_q;
-	int mark_lvl;
-	int rssi;
+private:
+   int timeout_cnt;
+   int last_i, last_q;
+   int mark_lvl;
+   int rssi;
 };
 #endif
