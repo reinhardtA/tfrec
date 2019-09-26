@@ -176,7 +176,9 @@ int decimate::process2x(int16_t *data, int length, int type)
    int16_t t0[DEC_TAP_NUM1];
    int16_t *taps = dec_filter_taps1;
    if (type)
+   {
       taps = dec_filter_taps1w;
+   }
 
    for (int i = 0; i < DEC_TAP_NUM1; i++)
    {
@@ -210,26 +212,34 @@ int decimate::process2x1(int16_t *data, int length)
    int16_t t0[DEC_TAP_NUM2];
    int16_t *taps = dec_filter_taps2;
    for (int i = 0; i < DEC_TAP_NUM2; i++)
+   {
       t0[i] = hist0[i];
+   }
 
    int32_t sum;
    for (int i = 0; i < length; i += 4)
    {
 
       for (int n = 0; n < DEC_TAP_NUM2 - 2; n++)
+      {
          t0[n] = t0[n + 2];
+      }
 
       t0[DEC_TAP_NUM2 - 2] = data[i];
       t0[DEC_TAP_NUM2 - 1] = data[i + 2];
       sum = 0;
 
       for (int n = 0; n < DEC_TAP_NUM2; n++)
+      {
          sum += (t0[n] * taps[n]) >> shift;
+      }
 
       data[i / 2] = sum;
    }
    for (int i = 0; i < DEC_TAP_NUM2; i++)
+   {
       hist0[i] = t0[i];
+   }
    return 0;
 }
 //-------------------------------------------------------------------------

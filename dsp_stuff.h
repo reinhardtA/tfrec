@@ -11,9 +11,6 @@
 #include <string>
 #include <vector>
 #include <thread>
-using std::thread;
-using std::string;
-using std::vector;
 
 class iir2
 {
@@ -52,7 +49,7 @@ public:
    int process_iq(int16_t *buf, int len, int filter = 0);
 
 private:
-   vector<decimate> dec_i, dec_q;
+   std::vector<decimate> dec_i, dec_q;
    int passes;
 };
 

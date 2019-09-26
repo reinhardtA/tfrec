@@ -111,8 +111,11 @@ void decoder::execute_handler(sensordata_t &d)
 void decoder::flush_storage(void)
 {
    if (!mode)
+   {
       return;
-   map<uint64_t, sensordata_t>::iterator it;
+   }
+
+   std::map<uint64_t, sensordata_t>::iterator it;
    it = data.begin();
    while (it != data.end())
    {

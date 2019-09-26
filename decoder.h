@@ -5,9 +5,6 @@
 #include <string>
 #include <map>
 
-using std::string;
-using std::map;
-
 enum sensor_e
 {
    TFA_1 = 0, // IT+ Klimalogg Pro, 30.3180, 30.3181, 30.3199(?)
@@ -80,7 +77,7 @@ private:
 
    char *handler;
    int mode;
-   map<uint64_t, sensordata_t> data;
+   std::map<uint64_t, sensordata_t> data;
 
 };
 
