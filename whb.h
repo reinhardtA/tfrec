@@ -1,8 +1,6 @@
 #ifndef _INCLUDE_TFA5H
 #define _INCLUDE_TFA5H
 
-#include <string>
-
 // Base Classes
 #include "decoder.h"
 #include "demodulator.h"
@@ -11,15 +9,18 @@
 #include "dsp_stuff.h"
 #include "crc32.h"
 
-using std::string;
-
 class whb_decoder: public decoder
 {
+
 public:
    whb_decoder(sensor_e type = TFA_WHB);
+   virtual ~whb_decoder()
+   {
+   }
    void store_bit(int bit);
    void flush(int rssi, int offset = 0);
-   private:
+
+private:
    double cvt_temp(uint16_t raw);
    void decode_02(uint8_t *msg, uint64_t id, int rssi, int offset); // temp
    void decode_03(uint8_t *msg, uint64_t id, int rssi, int offset); // temp/hum
@@ -37,7 +38,7 @@ public:
    int snum;
    crc32 *crc;
 
-   // Decoding	
+   // Decoding
    int last_bit;
    int psk, last_psk;
    int nrzs;
@@ -48,6 +49,10 @@ class whb_demod: public demodulator
 {
 public:
    whb_demod(decoder *_dec, double spb);
+   virtual ~whb_demod()
+   {
+   }
+
    void reset(void);
    int demod(int thresh, int pwr, int index, int16_t *iq);
 

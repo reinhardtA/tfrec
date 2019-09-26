@@ -1,9 +1,7 @@
 #ifndef _INCLUDE_TFA2H
 #define _INCLUDE_TFA2H
 
-#include <string>
-
-// BAses Classes
+// Bases Classes
 #include "decoder.h"
 #include "demodulator.h"
 
@@ -11,16 +9,17 @@
 #include "dsp_stuff.h"
 #include "crc8.h"
 
-// TODO : remove
-using std::string;
-
 class tfa2_decoder: public decoder
 {
 public:
    tfa2_decoder(sensor_e type = TFA_2);
+   virtual ~tfa2_decoder()
+   {
+   }
    void store_bit(int bit);
    void flush(int rssi, int offset = 0);
-   private:
+
+private:
    void flush_tfa(int rssi, int offset = 0);
    void flush_tx22(int rssi, int offset = 0);
    int invert;
@@ -34,6 +33,9 @@ class tfa2_demod: public demodulator
 {
 public:
    tfa2_demod(decoder *_dec, double spb, double iir_fac = 0.5);
+   virtual ~tfa2_demod()
+   {
+   }
    void reset(void);
    int demod(int thresh, int pwr, int index, int16_t *iq);
 

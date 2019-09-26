@@ -6,7 +6,7 @@
 /*
  Protocol for IT+ Sensors 30.3143/30.3144 and 30.3155 and TX22
 
- FSK - modulation / NRZ 
+ FSK - modulation / NRZ
  30.3143,30.3144 (=TFA_2)
  Bitrate ~17240 bit/s -> @ 1.535MHz & 4x decimation -> 22.2 samples/bit
  Training sequence: 4* 1-0 toggles (8 bit)
@@ -19,8 +19,8 @@
  7 bytes total (inkl. sync, excl. training)
 
  Telegram format
- 3  4 5  6 
- 0x2d 0xd4 II IT TT HH CC 
+ 3  4 5  6
+ 0x2d 0xd4 II IT TT HH CC
  2d d4: Sync bytes
  III(11:8)=0x9 (at least for 3143/44/55)
  III(7:2)= ID(7:2) (displayed at startup, last 2 bits of ID always 0)
@@ -45,7 +45,7 @@
  I(0): Error
  Q(3): Low Bat
  Q(2:0): Count of data words
- T: Type, 0: temp (BCD/10+40 deg C), 1: humidity (BCD %rH), 
+ T: Type, 0: temp (BCD/10+40 deg C), 1: humidity (BCD %rH),
  2: rain (12bit cnt), 3: wind (4bit * 22.5deg, 8bit speed 0.1*m/s), 4: gust (12bit 0.1*m/s)
 
  */
@@ -73,7 +73,8 @@ void tfa2_decoder::flush(int rssi, int offset)
 //-------------------------------------------------------------------------
 void tfa2_decoder::flush_tx22(int rssi, int offset)
 {
-   uint8_t crc_val, crc_calc;
+   uint8_t crc_val = 0;
+   uint8_t crc_calc = 0;
 
    if (byte_cnt >= 7 && byte_cnt < 64)
    {

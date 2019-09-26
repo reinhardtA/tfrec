@@ -19,9 +19,13 @@ class iir2
 {
 public:
    iir2(double cutoff);
+   virtual ~iir2()
+   {
+   }
    double step(double din);
    void set(double cutoff);
-   private:
+
+private:
    double dn1, dn2;
    double yn, yn1, yn2;
    double b0, b1, b2, a1, a2;
@@ -31,7 +35,7 @@ class decimate
 {
 public:
    decimate(void);
-   ~decimate(void);
+   virtual ~decimate(void);
    int process2x(int16_t *data, int length, int type); // IQ
    int process2x1(int16_t *data, int length); // IQ
 private:
@@ -44,8 +48,7 @@ class downconvert
 {
 public:
    downconvert(int p);
-   ~downconvert(void);
-
+   virtual ~downconvert(void);
    int process_iq(int16_t *buf, int len, int filter = 0);
 
 private:

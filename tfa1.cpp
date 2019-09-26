@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include <string>
+
 #include "tfa1.h"
 #include "dsp_stuff.h"
 
