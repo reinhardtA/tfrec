@@ -16,6 +16,16 @@
 
 #include "utils.h"
 
+/**
+ * defines the possible gain modes for the SDR class
+ */
+enum eGainMode
+{
+   eAuto = 0,
+   eUser = 1,
+   eUnknown
+};
+
 class sdr
 {
 public:
@@ -25,7 +35,11 @@ public:
    void get_properties(std::string &paramVendor, std::string &paramProduct, std::string &parmSerial);
    int set_buffer_len(int paramBufferLength);
    int set_frequency(uint32_t paramFrequency);
-   int set_gain(int paramGainMaode, float paramGain);
+
+   /**
+    * set gain mode and value
+    */
+   int set_gain(eGainMode paramGainMaode, float paramGain);
    int set_ppm(int paramPPM);
    int set_samplerate(int paramSampleRate);
 
@@ -59,10 +73,12 @@ private:
 
    int16_t *buffer;
 
+   eGainMode m_GainMode;
+   int m_GainValue;
+   int m_FrequencyCorrection;
+
    int buffer_len;
-   int cur_gain;
-   int cur_gain_mode;
-   int cur_ppm;
+
    int cur_sr;
 
    uint32_t cur_frequ;

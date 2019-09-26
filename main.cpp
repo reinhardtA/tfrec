@@ -34,10 +34,12 @@ void read_raw_msgs(vector<demodulator*> *demods, char *test_file)
    {
       // Skip comment lines
       if (buf[0] == '#')
+      {
          continue;
+      }
       unsigned char dbuf[512];
       // convertdump line to binary
-      int len = 0;
+      size_t len = 0;
       char *dp = buf;
       char *x;
       while ((x = strsep(&dp, " ")) && len < sizeof(dbuf))
@@ -45,7 +47,7 @@ void read_raw_msgs(vector<demodulator*> *demods, char *test_file)
          if (*x != 0)
             dbuf[len++] = strtol(x, NULL, 16);
       }
-      for (int n = 0; n < demods->size(); n++)
+      for (size_t n = 0; n < demods->size(); n++)
       {
          demods->at(n)->dec->store_bytes(dbuf, len);
          demods->at(n)->dec->flush(0);
@@ -108,12 +110,14 @@ int main(int argc, char **argv)
    int filter = 0;
    char *hexdump_file = NULL;
 
-   while (1)
+   while (true)
    {
       signed char c = getopt(argc, argv,
          "d:Df:g:e:t:m:w:WqT:S:L:X:h");
       if (c == -1)
+      {
          break;
+      }
       switch (c)
       {
       case 'd':
@@ -180,7 +184,7 @@ int main(int argc, char **argv)
 
    if (types & (1 << TFA_1))
    {
-      // TFA1 (KlimaLoggPro)	
+      // TFA1 (KlimaLoggPro)
       printf("Registering demod for TFA_1 KlimaLoggPro\n");
       decoder *tfa1_dec = new tfa1_decoder(TFA_1);
       tfa1_dec->set_params(exec, mode, debug);
@@ -244,7 +248,9 @@ int main(int argc, char **argv)
 
    if (mode)
    {
-      for (int n = 0; n < demods.size(); n++)
+      for (size_t n = 0; n < demods.size(); n++)
+      {
          demods.at(n)->dec->flush_storage();
+      }
    }
 }

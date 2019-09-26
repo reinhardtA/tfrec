@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <string>
 
-using std::string;
-
 #include "sdr.h"
 #include "dsp_stuff.h"
 #include "fm_demod.h"
@@ -25,19 +23,19 @@ public:
    ~engine(void);
    void run(int timeout);
 
-   void get_properties(string &vendor, string &product, string &serial)
+   void get_properties(std::string &vendor, std::string &product, std::string &serial)
    {
-      /*		if (s) {
-       s->get_properties(vendor, product, serial);
-       }
+      /*
+       * if (s) {
+       * s->get_properties(vendor, product, serial);
+       * }
        */
    }
-   ;
 
 private:
 
    fsk_demod *fsk;
-   int srate;
+   int m_SampleRate;
    int filter_type;
    int dbg;
    int read_dump;
@@ -45,4 +43,5 @@ private:
    int dumpmode;
    char *dumpfile;
 };
+
 #endif

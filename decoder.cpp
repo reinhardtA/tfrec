@@ -66,7 +66,9 @@ void decoder::store_data(sensordata_t &d)
    }
 
    if (!mode && !found)
+   {
       execute_handler(d);
+   }
 }
 //-------------------------------------------------------------------------
 void decoder::execute_handler(sensordata_t &d)

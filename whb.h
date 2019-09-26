@@ -52,7 +52,6 @@ public:
    virtual ~whb_demod()
    {
    }
-
    void reset(void);
    int demod(int thresh, int pwr, int index, int16_t *iq);
 

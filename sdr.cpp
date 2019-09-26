@@ -31,11 +31,13 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
    wr_ptr = 0;
    rd_ptr = 0;
    r_thread = NULL;
+   dump_fd = NULL;
+
    m_IsRunning = false;
    m_DebugMode = _dbg ? true : false;
+   m_GainMode = eGainMode::eUnknown;
 
    m_ptrRtlSdrDevice = NULL;
-   dump_fd = NULL;
 
    if (dumpmode > 0 && dumpfile)
    {
@@ -48,7 +50,6 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
    }
 
    set_buffer_len(2 * 1024 * 1024);
-
    m_Vendor = "";
    m_Product = "";
    m_Serial = "";
@@ -60,7 +61,8 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
    m_Serial = serialc;
 
    int r;
-   while (true)
+   int retryCount = 10;
+   while (retryCount)
    {
       r = rtlsdr_open(&m_ptrRtlSdrDevice, dev_index);
       if (!r)
@@ -68,11 +70,14 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
          break;
       }
 
-      fprintf(stderr, "RET OPEN %i, retry\n", r);
-      sleep(1);
+      fprintf(stderr, "cant open device, return code was :  %i\n", r);
+      fprintf(stderr, "will retry (ten times), in short time!\n");
+      retryCount -= 1;
+      sleep(2);
    }
+   // set frequency correction
    set_ppm(0);
-//	set_gain(0,0);
+
    pthread_cond_init(&ready, NULL);
    pthread_mutex_init(&ready_m, NULL);
 }
@@ -140,13 +145,14 @@ int sdr::start(void)
 //-------------------------------------------------------------------------
 int sdr::stop(void)
 {
-   if (r_thread)
+   if (NULL != r_thread)
    {
       rtlsdr_cancel_async(m_ptrRtlSdrDevice);
       r_thread->join();
       delete r_thread;
-      r_thread = 0;
+      r_thread = NULL;
    }
+
    m_IsRunning = false;
    return 0;
 }
@@ -170,12 +176,14 @@ int sdr::set_buffer_len(int l)
    buffer_len = l;
    wr_ptr = 0;
    rd_ptr = 0;
+
    return 0;
 }
 //-------------------------------------------------------------------------
-int sdr::set_frequency(uint32_t f)
+int sdr::set_frequency(uint32_t paramFrequency)
 {
    int tRet = 0;
+   cur_frequ = paramFrequency;
 
    if (NULL == m_ptrRtlSdrDevice)
    {
@@ -183,11 +191,11 @@ int sdr::set_frequency(uint32_t f)
       return -1;
    }
 
-   tRet = rtlsdr_set_center_freq(m_ptrRtlSdrDevice, f);
-   cur_frequ = f;
+   tRet = rtlsdr_set_center_freq(m_ptrRtlSdrDevice, cur_frequ);
    if (true == m_DebugMode)
    {
-      printf("Frequency %.4lfMHz\n", (float) (f / 1e6));
+      uint32_t tF = rtlsdr_get_center_freq(m_ptrRtlSdrDevice);
+      printf("Frequency %.4lfMHz\n", (float) (tF / 1e6));
    }
    return tRet;
 }
@@ -201,22 +209,32 @@ void sdr::get_properties(std::string &v, std::string &p, std::string &s)
 
 int sdr::nearest_gain(int g)
 {
-   int r, err1, err2, count, nearest;
-   int *tptrGains;
-   r = rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 1);
+   int err1, err2;
+
+   int r = rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 1);
    if (r < 0)
    {
-      fprintf(stderr, "WARNING: Failed to enable manual gain.\n");
+      fprintf(stderr, "WARNING: Failed to enable manual gain!\n");
       return r;
    }
-   count = rtlsdr_get_tuner_gains(m_ptrRtlSdrDevice, NULL);
+
+   int count = rtlsdr_get_tuner_gains(m_ptrRtlSdrDevice, NULL);
    if (count <= 0)
    {
+      fprintf(stderr, "WARNING: cant get tuners gain values!\n");
       return 0;
    }
-   tptrGains = (int*) malloc(sizeof(int) * count);
+   else
+   {
+      if (true == m_DebugMode)
+      {
+         printf("Number of GAIN : %i\n", count);
+      }
+   }
+
+   int *tptrGains = (int*) malloc(sizeof(int) * count);
    count = rtlsdr_get_tuner_gains(m_ptrRtlSdrDevice, tptrGains);
-   nearest = tptrGains[0];
+   int nearest = tptrGains[0];
    for (int i = 0; i < count; i++)
    {
       err1 = abs(g - nearest);
@@ -230,48 +248,69 @@ int sdr::nearest_gain(int g)
    return nearest;
 }
 //-------------------------------------------------------------------------
-// mode=0 -> auto gain
-int sdr::set_gain(int mode, float g)
+int sdr::set_gain(eGainMode paramGainMaode, float paramGainValue)
 {
+   // set the gain mode
+   m_GainMode = paramGainMaode;
+
    if (NULL == m_ptrRtlSdrDevice)
    {
       printf("ERR : No Device");
       return -1;
    }
 
-   if (mode == 0)
+   if (eGainMode::eAuto == m_GainMode)
    {
       if (true == m_DebugMode)
       {
-         printf("AUTO GAIN\n");
+         printf("GAIN Mode  : AUTO \n");
       }
-
       rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 0);
-      cur_gain = 0;
+   }
+   else if (eGainMode::eUser == m_GainMode)
+   {
+      if (true == m_DebugMode)
+      {
+         printf("GAIN Mode  : USER\n");
+      }
+      rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 1);
+
+      // calc the best gain supported by tuner
+      int tNearestGain = nearest_gain(paramGainValue * 10);
+      rtlsdr_set_tuner_gain(m_ptrRtlSdrDevice, tNearestGain);
    }
    else
    {
-      cur_gain = nearest_gain(g * 10);
-      if (true == m_DebugMode)
-      {
-         printf("GAIN %.1f\n", cur_gain / 10.0);
-      }
-      rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 1);
-      rtlsdr_set_tuner_gain(m_ptrRtlSdrDevice, cur_gain);
+      printf("ERR : gein Mode unknown");
+      return -1;
    }
-   cur_gain_mode = mode;
-   return cur_gain;
+
+   // get the gain
+   m_GainValue = rtlsdr_get_tuner_gain(m_ptrRtlSdrDevice);
+   if (true == m_DebugMode)
+   {
+      printf("GAIN Value : %.1f\n", m_GainValue / 10.0);
+   }
+
+   return m_GainValue;
 }
 //-------------------------------------------------------------------------
-int sdr::set_ppm(int p)
+int sdr::set_ppm(int paramFrequencyCorrection)
 {
    if (NULL == m_ptrRtlSdrDevice)
    {
       printf("ERR : No Device");
       return -1;
    }
-   int tRet = rtlsdr_set_freq_correction(m_ptrRtlSdrDevice, p);
-   cur_ppm = p;
+   int tRet = rtlsdr_set_freq_correction(m_ptrRtlSdrDevice, paramFrequencyCorrection);
+
+   // get the correction
+   m_FrequencyCorrection = rtlsdr_get_freq_correction(m_ptrRtlSdrDevice);
+   if (true == m_DebugMode)
+   {
+      printf("Freq. Corr : %i\n", m_FrequencyCorrection);
+   }
+
    return tRet;
 }
 //-------------------------------------------------------------------------

@@ -6,13 +6,17 @@
  */
 
 #include <string.h>
+
 #include "engine.h"
+
+#define RLS 65536
 
 //-------------------------------------------------------------------------
 engine::engine(int _device, uint32_t freq, int gain, int filter, fsk_demod *_fsk, int _dbg, int _dumpmode, char *_dumpfile)
 {
+   m_SampleRate = 1536000;
+
    freq = freq * 1000; // kHz->Hz
-   srate = 1536000;
    filter_type = filter;
    fsk = _fsk;
    dbg = _dbg;
@@ -20,23 +24,33 @@ engine::engine(int _device, uint32_t freq, int gain, int filter, fsk_demod *_fsk
    dumpmode = _dumpmode;
 
    if (filter_type)
+   {
       puts("Wide filter");
+   }
 
    if (dumpmode)
+   {
       printf("Dumpmode %i (%s), dumpfile %s\n", dumpmode,
          dumpmode == 1 ? "SAVE" : (dumpmode == -1 ? "LOAD" : "NONE"),
          dumpfile);
+   }
 
    if (dumpmode >= 0)
    {
       s = new sdr(_device, dbg, dumpmode, dumpfile);
-      if (gain == -1)
-         s->set_gain(0, 0);
-      else
-         s->set_gain(1, gain);
-
-      s->set_frequency(freq);
-      s->set_samplerate(srate);
+      if (NULL != s)
+      {
+         if (gain == -1)
+         {
+            s->set_gain(eGainMode::eAuto, 0);
+         }
+         else
+         {
+            s->set_gain(eGainMode::eUser, gain);
+         }
+         s->set_frequency(freq);
+         s->set_samplerate(m_SampleRate);
+      }
    }
 }
 //-------------------------------------------------------------------------
@@ -49,7 +63,9 @@ void engine::run(int timeout)
    FILE *dump_fd = NULL;
 
    if (dumpmode >= 0)
+   {
       s->start();
+   }
    else
    {
       dump_fd = fopen(dumpfile, "rb");
@@ -63,14 +79,13 @@ void engine::run(int timeout)
 
    time_t start = time(0);
 
-   while (1)
+   while (true)
    {
       int16_t *data;
       int len;
 
       if (dump_fd)
       {
-#define RLS 65536
          int16_t datab[RLS];
          {
             unsigned char buf[RLS];

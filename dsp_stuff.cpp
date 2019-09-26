@@ -3,7 +3,7 @@
  (c) 2017 Georg Acher, Deti Fliegl {acher|fliegl}(at)baycom.de
 
  #include <GPL-v2>
- 
+
  dsp_stuff.cpp - Some useful DSP functions
 
  Some parts inspired from librtlsdr (rtl_fm.c)
@@ -12,7 +12,7 @@
  * Copyright (C) 2012 by Hoernchen <la@tfc-server.de>
  * Copyright (C) 2012 by Kyle Keen <keenerd@gmail.com>
  * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
- 
+
 
  */
 
@@ -160,9 +160,9 @@ decimate::~decimate(void)
 /*
  0 2 4 6 8 0 2 4-6 8 0 2 4 6 8 0-2 4 6
  0   x x X X
- 1       x x X X  
+ 1       x x X X
  2           x x X X
- 3               x x X X-       
+ 3               x x X X-
  4                   x x-X X
  5                      -x x X X
  6                           x x X X
@@ -277,9 +277,13 @@ int fm_dev_nrzs(int ar, int aj, int br, int bj)
 
    // This limits also the max RSSI
    if (cr > 1e9)
+   {
       cr = 1e9;
+   }
    if (cr < -1e9)
+   {
       cr = -1e9;
+   }
    return cr;
 }
 //-------------------------------------------------------------------------

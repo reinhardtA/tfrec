@@ -31,6 +31,9 @@ class tfa1_demod: public demodulator
 {
 public:
    tfa1_demod(decoder *_dec);
+   virtual ~tfa1_demod()
+   {
+   }
    int demod(int thresh, int pwr, int index, int16_t *iq);
 
 private:

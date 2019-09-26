@@ -36,7 +36,8 @@ void fsk_demod::process(int16_t *data_iq, int len)
 {
    int triggered = 0;
    runs++;
-   for (int n = 0; n < demods->size(); n++)
+
+   for (size_t n = 0; n < demods->size(); n++)
    {
       demods->at(n)->start(len);
    }
@@ -48,11 +49,15 @@ void fsk_demod::process(int16_t *data_iq, int len)
       int pwr = abs(data_iq[i]) + abs(data_iq[i + 1]);
       int t = 0;
 
-      for (int n = 0; n < demods->size(); n++)
+      for (std::size_t n = 0; n < demods->size(); n++)
+      {
          t += demods->at(n)->demod(thresh, pwr, i, data_iq + i);
+      }
 
       if (t)
+      {
          triggered++;
+      }
 
       last_i = data_iq[i];
       last_q = data_iq[i + 1];
@@ -61,7 +66,9 @@ void fsk_demod::process(int16_t *data_iq, int len)
    triggered_avg = (31 * triggered_avg + triggered) / 32;
 
    if (dbg >= 3)
+   {
       printf("Trigger ratio %i/%i, avg %i \n", triggered, len / 2, triggered_avg);
+   }
 
    if (thresh_mode == 1 && (runs & 3) == 0)
    {
@@ -69,13 +76,17 @@ void fsk_demod::process(int16_t *data_iq, int len)
       {
          thresh += 2;
          if (dbg >= 3)
+         {
             printf("Increased trigger level to %i\n", thresh);
+         }
       }
       else if (triggered_avg <= len / 64 && thresh > 50)
       {
          thresh -= 2;
          if (dbg >= 3)
+         {
             printf("Decreased trigger level to %i\n", thresh);
+         }
       }
    }
 }

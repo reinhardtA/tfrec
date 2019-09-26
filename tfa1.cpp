@@ -56,7 +56,9 @@ void tfa1_decoder::flush(int rssi, int offset)
       {
          printf("#%03i %u  ", snum++, (uint32_t) time(0));
          for (int n = 0; n < 11; n++)
+         {
             printf("%02x ", rdata[n]);
+         }
          printf("          ");
       }
       int id = ((rdata[2] << 8) | rdata[3]) & 0x7fff;
@@ -85,7 +87,7 @@ void tfa1_decoder::flush(int rssi, int offset)
 
          // Sensor values may fail at 0xaaa/0xfff or 0x7f due to low battery
          // even without lowbat bit
-         // Set it to 2 -> sensor data not valid			
+         // Set it to 2 -> sensor data not valid
          if (rdata[5] == 0xff || rdata[5] == 0xaa || hum == 0x7f)
          {
             batfail = 2;
@@ -93,11 +95,9 @@ void tfa1_decoder::flush(int rssi, int offset)
             temp = 0;
          }
 
-         if (dbg >= 0)
-         {
-            printf("TFA1 ID %04x %+.1f %i%% seq %x lowbat %i RSSI %i\n", id, temp, hum, seq, batfail, rssi);
-            fflush (stdout);
-         }
+         printf("TFA1 ID %04x %+.1f %i%% seq %x lowbat %i RSSI %i\n", id, temp, hum, seq, batfail, rssi);
+         fflush (stdout);
+
          sensordata_t sd;
          sd.type = TFA_1;
          sd.id = id;
@@ -116,9 +116,13 @@ void tfa1_decoder::flush(int rssi, int offset)
          if (dbg)
          {
             if (crc_val != crc_calc)
+            {
                printf("TFA1 BAD %i RSSI %i (CRC %02x %02x)\n", bad, rssi, crc_val, crc_calc);
+            }
             else
+            {
                printf("TFA1 BAD %i RSSI %i (SANITY)\n", bad, rssi);
+            }
             fflush (stdout);
          }
       }
@@ -143,7 +147,9 @@ void tfa1_decoder::store_bit(int bit)
       byte_cnt++;
    }
    if (sr_cnt >= 0)
+   {
       sr_cnt = (sr_cnt + 1) & 7;
+   }
 }
 //-------------------------------------------------------------------------
 tfa1_demod::tfa1_demod(decoder *_dec)
@@ -160,7 +166,9 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
    int triggered = 0;
 
    if (pwr > thresh)
+   {
       timeout_cnt = 40 * BITPERIOD;
+   }
 
    if (timeout_cnt)
    {
@@ -169,13 +177,19 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
 
       // Hold maximum deviation of 0-edges for reference
       if (dev > mark_lvl)
+      {
          mark_lvl = dev;
+      }
       else
+      {
          mark_lvl = mark_lvl * 0.95;
+      }
 
       // remember peak for RSSI look-alike
       if (mark_lvl > rssi)
+      {
          rssi = mark_lvl;
+      }
 
       timeout_cnt--;
       // '0'-pulse if deviation drops below referenced threshold

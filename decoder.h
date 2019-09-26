@@ -55,12 +55,12 @@ public:
       return synced;
    }
 
-   int count(void)
+   virtual int count(void)
    {
       return data.size();
    }
 
-   sensor_e get_type(void)
+   virtual sensor_e get_type(void)
    {
       return type;
    }
@@ -78,11 +78,10 @@ protected:
 
 private:
 
-   char * handler;
+   char *handler;
    int mode;
    map<uint64_t, sensordata_t> data;
 
 };
-
 
 #endif
