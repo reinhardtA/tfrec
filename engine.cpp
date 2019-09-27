@@ -102,7 +102,9 @@ void engine::run(int timeout)
          }
       }
       else
+      {
          s->wait(data, len); // len=total sample number = #i+#q
+      }
 
       int ld = dc.process_iq(data, len, filter_type);
       fsk->process(data, ld);

@@ -89,7 +89,8 @@ void decoder::execute_handler(sensordata_t &d)
             d.ts);
       }
       else
-      { // WHB has really long IDs...
+      {
+         // WHB has really long IDs...
          nid = d.id;
          //                                     t   h  s  a  r  f ts
          snprintf(cmd, sizeof(cmd), "%s %013llx %+.1f %g %i %i %i %i %li",

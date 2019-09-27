@@ -12,6 +12,7 @@
 #include <vector>
 #include <thread>
 
+// infinite impulse response filter ...
 class iir2
 {
 public:
