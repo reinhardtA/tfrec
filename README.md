@@ -47,7 +47,7 @@ GPLv2   http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  utility has to run without any problems. Under Linux you need to add
  udev rules to use the stick as a non-root-user.
  
-- make, C++ compiler (g++/llvm), pkg-config
+- cmake, make, C++ compiler (g++/llvm), pkg-config
 
 - For the optional visualisation: apache, MySQL and Perl
 
