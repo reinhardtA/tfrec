@@ -1,20 +1,13 @@
 #ifndef _INCLUDE_DEMODULATOR_H
 #define _INCLUDE_DEMODULATOR_H
 
-#include <sys/time.h>
-#include <string>
-#include <map>
-
 #include "decoder/decoder.h"
 
 class demodulator
 {
 public:
    demodulator(decoder *_dec);
-   virtual ~demodulator()
-   {
-   }
-   ;
+   virtual ~demodulator();
 
    virtual void start(int len);
    virtual void reset();

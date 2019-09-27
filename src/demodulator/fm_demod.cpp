@@ -4,18 +4,15 @@
 
  #include <gplv2.h>
  */
-
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
-#include "fm_demod.h"
 
-#include "decoder/tfa1.h"
-#include "decoder/tfa2.h"
+#include "fm_demod.h"
+#include "demodulator/demodulator.h"
 #include "utils/dsp_stuff.h"
 
 //-------------------------------------------------------------------------
-fsk_demod::fsk_demod(vector<demodulator*> *_demods, int _thresh, int _dbg)
+fsk_demod::fsk_demod(std::vector<demodulator*> *_demods, int _thresh, int _dbg)
 {
    demods = _demods;
    dbg = _dbg;
@@ -30,6 +27,10 @@ fsk_demod::fsk_demod(vector<demodulator*> *_demods, int _thresh, int _dbg)
    triggered_avg = 0;
    runs = 0;
    index = 0;
+}
+fsk_demod::~fsk_demod()
+{
+
 }
 //-------------------------------------------------------------------------
 void fsk_demod::process(int16_t *data_iq, int len)

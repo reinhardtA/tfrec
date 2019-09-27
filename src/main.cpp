@@ -22,7 +22,7 @@
 /* Read hex dump files (xx xx xx ...), each message in a line
  Allows test decoding of already demodulated mmessages
  */
-void read_raw_msgs(vector<demodulator*> *demods, char *test_file)
+void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
 {
    FILE *fd = fopen(test_file, "r");
    if (!fd)
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
       exit(-1);
    }
 
-   vector<demodulator*> demods;
+   std::vector<demodulator*> demods;
 
    if (types & (1 << TFA_1))
    {
