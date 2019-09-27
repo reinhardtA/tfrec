@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "tfa1.h"
-#include "dsp_stuff.h"
+#include "decoder/tfa1.h"
+#include "utils/dsp_stuff.h"
 
 // Protocol for IT+ Sensors 30.3180.IT, 30.3181.IT, 30.3199
 // "KlimaLogg Pro"

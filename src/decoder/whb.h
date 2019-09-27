@@ -2,12 +2,12 @@
 #define _INCLUDE_TFA5H
 
 // Base Classes
-#include "decoder.h"
-#include "demodulator.h"
+#include "decoder/decoder.h"
+#include "demodulator/demodulator.h"
 
 // Helper
-#include "dsp_stuff.h"
-#include "crc32.h"
+#include "utils/dsp_stuff.h"
+#include "utils/crc32.h"
 
 class whb_decoder: public decoder
 {

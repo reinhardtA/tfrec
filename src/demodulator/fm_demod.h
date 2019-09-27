@@ -13,8 +13,8 @@
 
 using std::vector;
 
-#include "decoder.h"
-#include "demodulator.h"
+#include "decoder/decoder.h"
+#include "demodulator/demodulator.h"
 
 class fsk_demod
 {

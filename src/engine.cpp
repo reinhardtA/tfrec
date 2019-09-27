@@ -5,8 +5,6 @@
  #include <GPL-v2>
  */
 
-#include <string.h>
-
 #include "engine.h"
 
 #define RLS 65536

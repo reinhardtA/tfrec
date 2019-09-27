@@ -8,11 +8,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include "decoder.h"
-#include "tfa1.h"
-#include "tfa2.h"
 #include "fm_demod.h"
-#include "dsp_stuff.h"
+
+#include "decoder/tfa1.h"
+#include "decoder/tfa2.h"
+#include "utils/dsp_stuff.h"
 
 //-------------------------------------------------------------------------
 fsk_demod::fsk_demod(vector<demodulator*> *_demods, int _thresh, int _dbg)

@@ -2,11 +2,11 @@
 #define _INCLUDE_TFA1H
 
 // Base Classes
-#include "decoder.h"
-#include "demodulator.h"
+#include "decoder/decoder.h"
+#include "demodulator/demodulator.h"
 
 // Helper
-#include "crc8.h"
+#include "utils/crc8.h"
 
 class tfa1_decoder: public decoder
 {

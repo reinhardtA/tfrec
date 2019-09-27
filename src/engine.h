@@ -13,8 +13,8 @@
 #include <string>
 
 #include "sdr.h"
-#include "dsp_stuff.h"
-#include "fm_demod.h"
+#include "utils/dsp_stuff.h"
+#include "demodulator/fm_demod.h"
 
 class engine
 {

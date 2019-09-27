@@ -1,8 +1,8 @@
 #include <math.h>
 #include <map>
 
-#include "whb.h"
-#include "dsp_stuff.h"
+#include "decoder/whb.h"
+#include "utils/dsp_stuff.h"
 
 /*
  TFA WeatherHub
@@ -25,7 +25,7 @@
  Init-value depends on type (see crc_initvals)!
 
  See https://github.com/sarnau/MMMMobileAlerts/blob/master/MobileAlertsGatewayBinaryUpload.markdown
- for more details on the sensor payload!    
+ for more details on the sensor payload!
 
  ID-Mapping: Sensor-ID gets an appended nibble like TX22 (-> 6.5byte ID!)
  ID.0: temperature, humidity (0 if not available) (indoor)
@@ -83,7 +83,7 @@ whb_decoder::whb_decoder(sensor_e _type)
    snum = 0;
    bad = 0;
    crc = new crc32(0x04c11db7);
-#if 0	
+#if 0
 	{
 		uint8_t msg[4];
 		for(uint32_t i=0;i<0xffffffff;i++) {
@@ -429,7 +429,7 @@ void whb_decoder::decode_11(uint8_t *msg, uint64_t id, int rssi, int offset)
    }
 }
 //-------------------------------------------------------------------------
-// Humidity guard 
+// Humidity guard
 void whb_decoder::decode_12(uint8_t *msg, uint64_t id, int rssi, int offset)
 {
    uint16_t seq = BE16(msg) & 0x3fff;
@@ -694,7 +694,7 @@ int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
 		if (!fy)
 			fy=fopen("blub1","w");
 		if (fx)
-			fprintf(fx,"%i %i %i %i\n",fc,dev, bit, tdiff_mod*10);		
+			fprintf(fx,"%i %i %i %i\n",fc,dev, bit, tdiff_mod*10);
 		fc++;
 #endif
 

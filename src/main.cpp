@@ -13,10 +13,11 @@
 
 #include "engine.h"
 
-#include "tfa1.h"
-#include "tfa2.h"
-#include "whb.h"
-#include "crc32.h"
+#include "decoder/tfa1.h"
+#include "decoder/tfa2.h"
+#include "decoder/whb.h"
+
+#include "utils/crc32.h"
 //-------------------------------------------------------------------------
 /* Read hex dump files (xx xx xx ...), each message in a line
  Allows test decoding of already demodulated mmessages

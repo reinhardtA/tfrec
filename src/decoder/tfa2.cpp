@@ -1,7 +1,6 @@
 #include <math.h>
 
-#include "tfa2.h"
-#include "dsp_stuff.h"
+#include "decoder/tfa2.h"
 
 /*
  Protocol for IT+ Sensors 30.3143/30.3144 and 30.3155 and TX22

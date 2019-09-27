@@ -14,7 +14,7 @@
 
 #include <rtl-sdr.h>
 
-#include "utils.h"
+#include "utils/utils.h"
 
 /**
  * defines the possible gain modes for the SDR class
