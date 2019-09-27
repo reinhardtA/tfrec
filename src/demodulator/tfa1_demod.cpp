@@ -12,15 +12,20 @@ tfa1_demod::tfa1_demod(decoder *_dec)
    :
    demodulator(_dec)
 {
-   mark_lvl = 0;
-   rssi = 0;
    timeout_cnt = 0;
+   reset();
 }
 tfa1_demod::~tfa1_demod()
 {
 }
 void tfa1_demod::reset()
 {
+   //TODO: 20190927 : added this lines - if this leads to trouble remove them
+   mark_lvl = 0;
+   rssi = 0;
+   last_bit_idx = 0;
+   last_i = 0;
+   last_q = 0;
 }
 //-------------------------------------------------------------------------
 int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
@@ -63,12 +68,16 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
             if (index - last_bit_idx > 4)
             {
                for (int n = (2 * BITPERIOD) + 2; n <= (index - last_bit_idx); n += 2 * BITPERIOD)
+               {
                   dec->store_bit(1);
+               }
                dec->store_bit(0);
             }
          }
          if (index - last_bit_idx > 2)
+         {
             last_bit_idx = index;
+         }
       }
       // Flush data
       if (!timeout_cnt)
