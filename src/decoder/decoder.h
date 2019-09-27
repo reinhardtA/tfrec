@@ -34,35 +34,28 @@ class decoder
 public:
 
    decoder(sensor_e _type);
-
-   void set_params(char *_handler, int _mode, int _dbg);
-
-   virtual void store_bit(int bit);
-
-   virtual void flush(int rssi, int offset = 0);
-
-   virtual void store_data(sensordata_t &d);
-
-   virtual void execute_handler(sensordata_t &d);
-
-   virtual void flush_storage(void);
-
-   virtual int has_sync(void)
-   {
-      return synced;
-   }
+   virtual ~decoder();
 
    virtual int count(void)
    {
       return data.size();
    }
-
+   virtual void execute_handler(sensordata_t &d);
    virtual sensor_e get_type(void)
    {
       return type;
    }
+   virtual int has_sync(void)
+   {
+      return synced;
+   }
 
+   virtual void flush(int rssi, int offset = 0);
+   virtual void flush_storage(void);
+   virtual void set_params(char *_handler, int _mode, int _dbg);
+   virtual void store_bit(int bit);
    virtual void store_bytes(uint8_t *d, int len);
+   virtual void store_data(sensordata_t &d);
 
 protected:
 

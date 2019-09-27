@@ -17,6 +17,10 @@
 #include "decoder/tfa2.h"
 #include "decoder/whb.h"
 
+#include "demodulator/tfa1_demod.h"
+#include "demodulator/tfa2_demod.h"
+#include "demodulator/whb_demod.h"
+
 #include "utils/crc32.h"
 //-------------------------------------------------------------------------
 /* Read hex dump files (xx xx xx ...), each message in a line
@@ -103,7 +107,7 @@ int main(int argc, char **argv)
    char *exec = NULL;
    int debug = 0; // -1: quiet, 0: normal, 1: debug
    int timeout = 0;
-   int mode = 0; // :1 store all data, dump at program exit
+   int mode = 0; // :0 print every message, :1 store all data, dump at program exit
    int dumpmode = 0; // -1: read dump file, 0: normal (data from stick), 1: save data
    char *dumpfile = NULL;
    int deviceindex = 0;
@@ -247,8 +251,9 @@ int main(int argc, char **argv)
    signal(SIGALRM, timeout_handler);
    e.run(timeout);
 
-   if (mode)
+   if (1 == mode)
    {
+      printf("Mode 1 -> Print every message\n");
       for (size_t n = 0; n < demods.size(); n++)
       {
          demods.at(n)->dec->flush_storage();

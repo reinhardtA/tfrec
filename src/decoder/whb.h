@@ -3,7 +3,6 @@
 
 // Base Classes
 #include "decoder/decoder.h"
-#include "demodulator/demodulator.h"
 
 // Helper
 #include "utils/dsp_stuff.h"
@@ -14,9 +13,7 @@ class whb_decoder: public decoder
 
 public:
    whb_decoder(sensor_e type = TFA_WHB);
-   virtual ~whb_decoder()
-   {
-   }
+   virtual ~whb_decoder();
    void store_bit(int bit);
    void flush(int rssi, int offset = 0);
 
@@ -45,28 +42,4 @@ private:
    uint32_t lfsr;
 };
 
-class whb_demod: public demodulator
-{
-public:
-   whb_demod(decoder *_dec, double spb);
-   virtual ~whb_demod()
-   {
-   }
-   void reset(void);
-   int demod(int thresh, int pwr, int index, int16_t *iq);
-
-private:
-   double spb;
-   int bitcnt;
-   int offset;
-   int timeout_cnt;
-   int last_i, last_q;
-   int last_dev;
-   uint64_t step;
-   uint64_t last_peak;
-   double rssi;
-   iir2 *iir;
-   iir2 *iir_avg;
-   int avg_of;
-};
 #endif

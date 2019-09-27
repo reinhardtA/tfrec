@@ -207,7 +207,7 @@ void sdr::get_properties(std::string &v, std::string &p, std::string &s)
    s = m_Serial;
 }
 
-int sdr::nearest_gain(int g)
+int sdr::nearest_gain(int paramGain)
 {
    int err1, err2;
 
@@ -237,8 +237,8 @@ int sdr::nearest_gain(int g)
    int nearest = tptrGains[0];
    for (int i = 0; i < count; i++)
    {
-      err1 = abs(g - nearest);
-      err2 = abs(g - tptrGains[i]);
+      err1 = abs(paramGain - nearest);
+      err2 = abs(paramGain - tptrGains[i]);
       if (err2 < err1)
       {
          nearest = tptrGains[i];
@@ -334,7 +334,8 @@ int sdr::set_samplerate(int s)
 
 void sdr::read_data(unsigned char *buf, uint32_t len)
 {
-//	printf("Got %i\n",len);
+   //printf("Got %i\n", len);
+
    int w = wr_ptr;
 
    if (dump_fd)
@@ -363,6 +364,7 @@ static void sdr_read_callback(unsigned char *buf, uint32_t len, void *ctx)
       return;
    }
 
+   // cast the "context"
    sdr *this_ptr = (sdr*) ctx;
    this_ptr->read_data(buf, len);
    alarm(READ_TIMEOUT);
@@ -380,6 +382,7 @@ void sdr::read_thread(void)
 //-------------------------------------------------------------------------
 int sdr::wait(int16_t *&d, int &len)
 {
+   //printf("SDR wait\n");
    safe_cond_wait(&ready, &ready_m);
    d = buffer + rd_ptr;
    if (rd_ptr < wr_ptr)

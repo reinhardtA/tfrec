@@ -94,7 +94,9 @@ void engine::run(int timeout)
                exit(0);
             }
             for (int n = 0; n < RLS; n++)
+            {
                datab[n] = ((buf[n]) - 128) << 6; // scale like in sdr.cpp
+            }
             data = datab;
             len = RLS;
          }
@@ -108,10 +110,14 @@ void engine::run(int timeout)
       fsk->process(data, ld);
 
       if (!dump_fd)
+      {
          s->done(len);
+      }
 
       if (timeout && (time(0) - start > timeout))
+      {
          break;
+      }
    }
 }
 //-------------------------------------------------------------------------

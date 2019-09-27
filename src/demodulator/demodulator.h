@@ -3,6 +3,8 @@
 
 #include "decoder/decoder.h"
 
+// TODO: think about fwd decl. of decoder ... this may need some more work in child classes...
+
 class demodulator
 {
 public:

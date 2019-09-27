@@ -57,7 +57,7 @@ public:
 private:
 
    void read_thread(void);
-   int nearest_gain(int g);
+   int nearest_gain(int paramGain);
 
    std::string m_Vendor;
    std::string m_Product;

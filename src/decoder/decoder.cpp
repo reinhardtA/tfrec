@@ -17,6 +17,10 @@ decoder::decoder(sensor_e _type)
    bad = 0;
    synced = 0;
 }
+decoder::~decoder()
+{
+
+}
 //-------------------------------------------------------------------------
 void decoder::set_params(char *_handler, int _mode, int _dbg)
 {
