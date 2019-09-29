@@ -1,6 +1,8 @@
 #include <math.h>
 #include <map>
 
+#include "utils/dsp/iir.h"
+
 #include "decoder/decoder.h"
 #include "demodulator/whb_demod.h"
 

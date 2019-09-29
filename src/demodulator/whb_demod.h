@@ -8,6 +8,9 @@
 #include "utils/dsp_stuff.h"
 #include "utils/crc32.h"
 
+// forward
+class iir2;
+
 class whb_demod: public demodulator
 {
 public:

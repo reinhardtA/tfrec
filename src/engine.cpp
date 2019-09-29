@@ -7,6 +7,8 @@
 
 #include "engine.h"
 
+#include "utils/dsp/downconvert.h"
+
 #define RLS 65536
 
 //-------------------------------------------------------------------------

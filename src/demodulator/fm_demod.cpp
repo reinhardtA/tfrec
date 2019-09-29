@@ -6,6 +6,7 @@
  */
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "fm_demod.h"
 #include "demodulator/demodulator.h"

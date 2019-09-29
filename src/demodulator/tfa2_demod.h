@@ -5,7 +5,7 @@
 #include "demodulator/demodulator.h"
 
 // Helper
-#include "utils/dsp_stuff.h"
+#include "utils/dsp/iir.h"
 #include "utils/crc8.h"
 
 class tfa2_demod: public demodulator
