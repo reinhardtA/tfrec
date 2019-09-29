@@ -11,7 +11,7 @@
 decoder::decoder(sensor_e _type)
 {
    m_SendorType = _type;
-   handler = NULL;
+   m_ptrExecuteHandler = NULL;
    mode = 0;
    dbg = 0;
    bad = 0;
@@ -24,7 +24,7 @@ decoder::~decoder()
 //-------------------------------------------------------------------------
 void decoder::set_params(char *_handler, int _mode, int _dbg)
 {
-   handler = _handler;
+   m_ptrExecuteHandler = _handler;
    mode = _mode;
    dbg = _dbg;
 }
@@ -77,7 +77,8 @@ void decoder::store_data(sensordata_t &d)
 //-------------------------------------------------------------------------
 void decoder::execute_handler(sensordata_t &d)
 {
-   if (handler && strlen(handler))
+   // if a m_ptrExecuteHandler is given and the content is not empty
+   if ((NULL != m_ptrExecuteHandler) && (0 != strlen(m_ptrExecuteHandler)))
    {
       char cmd[512];
       uint64_t nid;
@@ -86,7 +87,7 @@ void decoder::execute_handler(sensordata_t &d)
          nid = d.id | (d.type << 24);
          //                                     t   h  s  a  r  f ts
          snprintf(cmd, sizeof(cmd), "%s %04llx %+.1f %g %i %i %i %i %li",
-            handler,
+            m_ptrExecuteHandler,
             nid, d.temp, d.humidity,
             d.sequence, d.alarm, d.rssi,
             d.flags,
@@ -98,7 +99,7 @@ void decoder::execute_handler(sensordata_t &d)
          nid = d.id;
          //                                     t   h  s  a  r  f ts
          snprintf(cmd, sizeof(cmd), "%s %013llx %+.1f %g %i %i %i %i %li",
-            handler,
+            m_ptrExecuteHandler,
             nid, d.temp, d.humidity,
             d.sequence, d.alarm, d.rssi,
             d.flags,

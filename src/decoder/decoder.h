@@ -46,7 +46,12 @@ public:
    {
       return data.size();
    }
-   virtual void execute_handler(sensordata_t &d);
+
+   /**
+    * executes a given m_ptrExecuteHandler on a sensor data set
+    */
+   virtual void execute_handler(sensordata_t &d) final;
+
    inline sensor_e get_type(void)
    {
       return m_SendorType;
@@ -77,7 +82,9 @@ protected:
 
 private:
 
-   char *handler;
+   // the exe handler
+   char *m_ptrExecuteHandler;
+
    int mode;
    std::map<uint64_t, sensordata_t> data;
 
