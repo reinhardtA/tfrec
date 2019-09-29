@@ -45,17 +45,18 @@ void decoder::flush(int rssi, int offset)
 {
 }
 //-------------------------------------------------------------------------
-void decoder::store_data(sensordata_t &d)
+void decoder::store_data(sensordata_t const &d)
 {
    int found = 0;
    /* only first appearance of id message is stored
     also check for identical sequence for WHB (suppress double exec)
     */
-   auto ret = data.find(d.id);
+   auto ret = m_CollectedSensorData.find(d.id);
 
-   if (ret == data.end())
+   if (m_CollectedSensorData.end() == ret)
    {
-      data.insert(std::pair<uint64_t, sensordata_t>(d.id, d));
+      // store data
+      m_CollectedSensorData.insert(std::pair<uint64_t, sensordata_t>(d.id, d));
    }
    else if (ret->second.type == TFA_WHB)
    {
@@ -69,13 +70,15 @@ void decoder::store_data(sensordata_t &d)
       }
    }
 
+   // execute in correct mode, only (aka mode 0)
+   // execute if no duplicae was found
    if (!mode && !found)
    {
       execute_handler(d);
    }
 }
 //-------------------------------------------------------------------------
-void decoder::execute_handler(sensordata_t &d)
+void decoder::execute_handler(sensordata_t const &d)
 {
    // if a m_ptrExecuteHandler is given and the content is not empty
    if ((NULL != m_ptrExecuteHandler) && (0 != strlen(m_ptrExecuteHandler)))
@@ -114,20 +117,23 @@ void decoder::execute_handler(sensordata_t &d)
    }
 }
 //-------------------------------------------------------------------------
-void decoder::flush_storage(void)
+void decoder::flush_storage()
 {
-   if (!mode)
+   if (mode) // aka mode = 1
    {
-      return;
+      // check for m_CollectedSensorData, run through it, execute the handler on m_CollectedSensorData content
+      std::map<uint64_t, sensordata_t>::iterator it = m_CollectedSensorData.begin();
+      while (it != m_CollectedSensorData.end())
+      {
+         execute_handler(it->second);
+         it++;
+      }
+      m_CollectedSensorData.clear();
    }
-
-   std::map<uint64_t, sensordata_t>::iterator it;
-   it = data.begin();
-   while (it != data.end())
-   {
-      execute_handler(it->second);
-      it++;
-   }
-   data.clear();
 }
-
+std::string decoder::convertTime(time_t const &paramTime)
+{
+   char buff[20];
+   strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&paramTime));
+   return buff;
+}

@@ -52,9 +52,14 @@ void tfa1_decoder::flush(int rssi, int offset)
 {
    if (byte_cnt >= 10)
    {
+      // get the time
+      time_t tCurrTime = time(0);
+      // print the time in a human readable format
+      printf("%s :", convertTime(tCurrTime).c_str());
+
       if (dbg)
       {
-         printf("#%03i %u  ", snum++, (uint32_t) time(0));
+         printf("#%03i %u  ", snum++, (uint32_t) tCurrTime);
          for (int n = 0; n < 11; n++)
          {
             printf("%02x ", rdata[n]);
@@ -95,9 +100,7 @@ void tfa1_decoder::flush(int rssi, int offset)
             temp = 0;
          }
 
-         printf("TFA1 ID %04x %+.1f %i%% seq %x lowbat %i RSSI %i\n", id, temp, hum, seq, batfail, rssi);
-         fflush (stdout);
-
+         // create the sensor data
          sensordata_t sd;
          sd.type = TFA_1;
          sd.id = id;
@@ -107,8 +110,21 @@ void tfa1_decoder::flush(int rssi, int offset)
          sd.alarm = batfail;
          sd.rssi = rssi;
          sd.flags = 0;
-         sd.ts = time(0);
+         sd.ts = tCurrTime;
+
+         // store the data
          store_data(sd);
+
+         printf("TFA1 ID %04x %+.1f %i%% seq %x lowbat %i RSSI %i\n"
+            , id // cant use from sd .. cause of warning TODO:
+            , sd.temp
+            , hum // cant use from sd .. cause of warning TODO:
+            , sd.sequence
+            , sd.alarm
+            , sd.rssi
+            );
+
+         fflush (stdout);
       }
       else
       {

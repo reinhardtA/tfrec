@@ -84,15 +84,23 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
 
    if (byte_cnt >= 7 && byte_cnt < 64)
    {
+      // get the time
+      time_t tCurrTime = time(0);
+      // print the time in a human readable format
+      printf("%s :", convertTime(tCurrTime).c_str());
+
       if (dbg)
       {
-         printf("#%03i %u  ", snum++, (uint32_t) time(0));
+         printf("#%03i %u  ", snum++, (uint32_t) tCurrTime);
          for (int n = 0; n < byte_cnt; n++)
             printf("%02x ", rdata[n]);
          printf("      ");
       }
       if ((rdata[2] >> 4) != 0xa)
+      {
+         // TODO : ??
          goto bad;
+      }
       int id = ((rdata[2] & 0xf) << 2) | (rdata[3] >> 6);
       int error = !((rdata[3] >> 4) & 1);
       int lowbat = (rdata[3] >> 3) & 1;
@@ -169,7 +177,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
       sd.alarm = error | lowbat;
       sd.rssi = rssi;
       sd.flags = 0;
-      sd.ts = time(0);
+      sd.ts = tCurrTime;
 
       int new_id = (m_SendorType << 28) | (id << 4);
       if (dbg >= 0)
@@ -249,9 +257,14 @@ void tfa2_decoder::flush_tfa(int rssi, int offset)
    //printf(" CNT %i\n",byte_cnt);
    if (byte_cnt >= 7)
    {
+      // get the time
+      time_t tCurrTime = time(0);
+      // print the time in a human readable format
+      printf("%s :", convertTime(tCurrTime).c_str());
+
       if (dbg)
       {
-         printf("#%03i %u  ", snum++, (uint32_t) time(0));
+         printf("#%03i %u  ", snum++, (uint32_t) tCurrTime);
          for (int n = 0; n < 7; n++)
          {
             printf("%02x ", rdata[n]);
@@ -292,7 +305,7 @@ void tfa2_decoder::flush_tfa(int rssi, int offset)
          sd.alarm = 0;
          sd.rssi = rssi;
          sd.flags = 0;
-         sd.ts = time(0);
+         sd.ts = tCurrTime;
          store_data(sd);
       }
       else

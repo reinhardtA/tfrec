@@ -42,15 +42,18 @@ public:
     */
    virtual ~decoder();
 
-   virtual int count(void)
+   /**
+    * returns the ammount of collected data
+    */
+   virtual int count()
    {
-      return data.size();
+      return m_CollectedSensorData.size();
    }
 
    /**
     * executes a given m_ptrExecuteHandler on a sensor data set
     */
-   virtual void execute_handler(sensordata_t &d) final;
+   virtual void execute_handler(sensordata_t const &d) final;
 
    inline sensor_e get_type(void)
    {
@@ -62,13 +65,16 @@ public:
    }
 
    virtual void flush(int rssi, int offset = 0);
-   virtual void flush_storage(void);
+   virtual void flush_storage();
    virtual void set_params(char *_handler, int _mode, int _dbg);
    virtual void store_bit(int bit);
    virtual void store_bytes(uint8_t *d, int len);
-   virtual void store_data(sensordata_t &d);
+   virtual void store_data(sensordata_t const &d);
 
 protected:
+
+   // converts a time struct into a string
+   std::string convertTime(time_t const &paramTime);
 
    // the decoders sensor type
    sensor_e m_SendorType;
@@ -84,9 +90,10 @@ private:
 
    // the exe handler
    char *m_ptrExecuteHandler;
+   // all collected sensor data
+   std::map<uint64_t, sensordata_t> m_CollectedSensorData;
 
    int mode;
-   std::map<uint64_t, sensordata_t> data;
 
 };
 
