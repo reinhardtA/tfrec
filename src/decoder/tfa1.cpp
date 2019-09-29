@@ -88,7 +88,9 @@ void tfa1_decoder::flush(int rssi, int offset)
 
          // .3181/.3199 has only temperature, humidity is 0x6a
          if (hum == 0x6a)
+         {
             hum = 0;
+         }
 
          // Sensor values may fail at 0xaaa/0xfff or 0x7f due to low battery
          // even without lowbat bit
@@ -159,7 +161,9 @@ void tfa1_decoder::store_bit(int bit)
    if (sr_cnt == 0)
    {
       if (byte_cnt < (int) sizeof(rdata))
+      {
          rdata[byte_cnt] = sr & 0xff;
+      }
       byte_cnt++;
    }
    if (sr_cnt >= 0)
