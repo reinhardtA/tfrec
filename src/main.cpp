@@ -62,10 +62,6 @@ void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
             demods->at(n)->m_ptrDecoder->store_bytes(dbuf, len);
             // do the decoding
             demods->at(n)->m_ptrDecoder->flush(0, 0);
-            // ?? why ??
-            puts("");
-            // flush the results, dependend on mode that is set
-            demods->at(n)->m_ptrDecoder->flush_storage();
          }
       }
       fclose(fd);
@@ -253,15 +249,17 @@ int main(int argc, char **argv)
 
    if (hexdump_file)
    {
+      printf("Decoding from HexDump File\n");
       read_raw_msgs(&tDemodulators, hexdump_file);
-      exit(0);
    }
-
-   fsk_demod fsk(&tDemodulators, thresh, debug);
-
-   engine e(deviceindex, freq, gain, filter, &fsk, debug, dumpmode, dumpfile);
-   signal(SIGALRM, timeout_handler);
-   e.run(timeout);
+   else
+   {
+      printf("Decoding from Real Data\n");
+      fsk_demod fsk(&tDemodulators, thresh, debug);
+      engine e(deviceindex, freq, gain, filter, &fsk, debug, dumpmode, dumpfile);
+      signal(SIGALRM, timeout_handler);
+      e.run(timeout);
+   }
 
    if (1 == mode)
    {
