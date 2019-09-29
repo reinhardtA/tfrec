@@ -58,9 +58,13 @@ void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
          }
          for (size_t n = 0; n < demods->size(); n++)
          {
+            // set the bytes into the decoder
             demods->at(n)->m_ptrDecoder->store_bytes(dbuf, len);
+            // do the decoding
             demods->at(n)->m_ptrDecoder->flush(0, 0);
+            // ?? why ??
             puts("");
+            // flush the results, dependend on mode that is set
             demods->at(n)->m_ptrDecoder->flush_storage();
          }
       }
@@ -68,9 +72,9 @@ void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
    }
 }
 //-------------------------------------------------------------------------
-void timeout_handler(int sig)
+void timeout_handler(int paramSignal)
 {
-   fprintf(stderr, "Read timeout, exiting\n");
+   fprintf(stderr, "Read timeout, exiting (Signal : %i)\n", paramSignal);
    exit(-1);
 }
 //-------------------------------------------------------------------------
@@ -107,23 +111,25 @@ void usage(void)
 int main(int argc, char **argv)
 {
    int gain = -1;
-   int freq = 868250;
+   int freq = 868250; // 868,250 MHz
    int thresh = 0; // Auto
-   char *exec = NULL;
+
    int debug = 0; // -1: quiet, 0: normal, 1: debug
    int timeout = 0;
    int mode = 0; // :0 print every message, :1 store all data, dump at program exit
    int dumpmode = 0; // -1: read dump file, 0: normal (data from stick), 1: save data
-   char *dumpfile = NULL;
    int deviceindex = 0;
    int types = 0x07;
    int filter = 0;
+
+   char *exec = NULL;
+   char *dumpfile = NULL;
    char *hexdump_file = NULL;
 
+   // read the options
    while (true)
    {
-      signed char c = getopt(argc, argv,
-         "d:Df:g:e:t:m:w:WqT:S:L:X:h");
+      signed char c = getopt(argc, argv, "d:Df:g:e:t:m:w:WqT:S:L:X:h");
       if (c == -1)
       {
          break;
@@ -184,13 +190,14 @@ int main(int argc, char **argv)
          return 0;
       }
    }
+
    if (deviceindex == -1)
    {
       fprintf(stderr, "Invalid SDR device\n");
       exit(-1);
    }
 
-   std::vector<demodulator*> demods;
+   std::vector<demodulator*> tDemodulators;
 
    if (types & (1 << TFA_1))
    {
@@ -198,7 +205,7 @@ int main(int argc, char **argv)
       printf("Registering demod for TFA_1 KlimaLoggPro\n");
       decoder *tfa1_dec = new tfa1_decoder(TFA_1);
       tfa1_dec->set_params(exec, mode, debug);
-      demods.push_back(new tfa1_demod(tfa1_dec));
+      tDemodulators.push_back(new tfa1_demod(tfa1_dec));
    }
 
    if (types & (1 << TFA_2))
@@ -207,7 +214,7 @@ int main(int argc, char **argv)
       printf("Registering demod for TFA_2 sensors, 17240 bit/s\n");
       decoder *tfa2_dec = new tfa2_decoder(TFA_2);
       tfa2_dec->set_params(exec, mode, debug);
-      demods.push_back(new tfa2_demod(tfa2_dec, (1536000 / 4.0) / 17240));
+      tDemodulators.push_back(new tfa2_demod(tfa2_dec, (1536000 / 4.0) / 17240));
    }
 
    if (types & (1 << TFA_3))
@@ -216,7 +223,7 @@ int main(int argc, char **argv)
       printf("Registering demod for TFA_3 sensors, 9600 bit/s\n");
       decoder *tfa3_dec = new tfa2_decoder(TFA_3);
       tfa3_dec->set_params(exec, mode, debug);
-      demods.push_back(new tfa2_demod(tfa3_dec, (1536000 / 4.0) / 9600));
+      tDemodulators.push_back(new tfa2_demod(tfa3_dec, (1536000 / 4.0) / 9600));
    }
 
    if (types & (1 << TX22))
@@ -225,7 +232,7 @@ int main(int argc, char **argv)
       printf("Registering demod for TX22, 8842 bit/s\n");
       decoder *tx22_dec = new tfa2_decoder(TX22);
       tx22_dec->set_params(exec, mode, debug);
-      demods.push_back(new tfa2_demod(tx22_dec, (1536000 / 4.0) / 8842, 0.5));
+      tDemodulators.push_back(new tfa2_demod(tx22_dec, (1536000 / 4.0) / 8842, 0.5));
    }
    /*
     if (types&(1<<TFA_WHP)) {
@@ -241,16 +248,16 @@ int main(int argc, char **argv)
       printf("Registering demod for TFA_WHB sensors, 6000 bit/s\n");
       decoder *whb_dec = new whb_decoder(TFA_WHB);
       whb_dec->set_params(exec, mode, debug);
-      demods.push_back(new whb_demod(whb_dec, (1536000 / 4.0) / 6000));
+      tDemodulators.push_back(new whb_demod(whb_dec, (1536000 / 4.0) / 6000));
    }
 
    if (hexdump_file)
    {
-      read_raw_msgs(&demods, hexdump_file);
+      read_raw_msgs(&tDemodulators, hexdump_file);
       exit(0);
    }
 
-   fsk_demod fsk(&demods, thresh, debug);
+   fsk_demod fsk(&tDemodulators, thresh, debug);
 
    engine e(deviceindex, freq, gain, filter, &fsk, debug, dumpmode, dumpfile);
    signal(SIGALRM, timeout_handler);
@@ -259,9 +266,9 @@ int main(int argc, char **argv)
    if (1 == mode)
    {
       printf("Mode 1 -> Print every message\n");
-      for (size_t n = 0; n < demods.size(); n++)
+      for (size_t idx = 0; idx < tDemodulators.size(); idx++)
       {
-         demods.at(n)->m_ptrDecoder->flush_storage();
+         tDemodulators.at(idx)->m_ptrDecoder->flush_storage();
       }
    }
 }
