@@ -129,7 +129,7 @@ void whb_decoder::decode_02(uint8_t *msg, uint64_t id, int rssi, int offset)
       fflush (stdout);
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL);
    sd.temp = cvt_temp(temp);
    sd.humidity = 0;
@@ -159,7 +159,7 @@ void whb_decoder::decode_03(uint8_t *msg, uint64_t id, int rssi, int offset)
       fflush (stdout);
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL);
    sd.temp = cvt_temp(temp);
    sd.humidity = hum;
@@ -190,7 +190,7 @@ void whb_decoder::decode_04(uint8_t *msg, uint64_t id, int rssi, int offset)
       fflush (stdout);
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL);
    sd.temp = cvt_temp(temp);
    sd.humidity = hum;
@@ -226,7 +226,7 @@ void whb_decoder::decode_06(uint8_t *msg, uint64_t id, int rssi, int offset)
       fflush (stdout);
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL);
    sd.temp = cvt_temp(temp);
    sd.humidity = hum;
@@ -264,7 +264,7 @@ void whb_decoder::decode_07(uint8_t *msg, uint64_t id, int rssi, int offset)
    }
 
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL); // ID.0 = indoor
    sd.temp = cvt_temp(temp[0]);
    sd.humidity = hum[0];
@@ -304,7 +304,7 @@ void whb_decoder::decode_08(uint8_t *msg, uint64_t id, int rssi, int offset)
    }
 
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL) | 2;
    sd.temp = cnt;
    sd.humidity = times[1];
@@ -342,7 +342,7 @@ void whb_decoder::decode_0b(uint8_t *msg, uint64_t id, int rssi, int offset)
       }
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL) | 3;
    sd.temp = speed[0];
    sd.humidity = dir[0];
@@ -377,7 +377,7 @@ void whb_decoder::decode_10(uint8_t *msg, uint64_t id, int rssi, int offset)
       }
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL) | 5;
    sd.temp = state[0];
    sd.humidity = times[1];
@@ -412,7 +412,7 @@ void whb_decoder::decode_11(uint8_t *msg, uint64_t id, int rssi, int offset)
       fflush (stdout);
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL);
    sd.temp = cvt_temp(temp[3]);
    sd.humidity = hum[3];
@@ -451,7 +451,7 @@ void whb_decoder::decode_12(uint8_t *msg, uint64_t id, int rssi, int offset)
       fflush (stdout);
    }
    sensordata_t sd;
-   sd.type = type;
+   sd.type = m_SendorType;
    sd.id = (id << 4LL);
    sd.temp = cvt_temp(temp);
    sd.humidity = hum[0];

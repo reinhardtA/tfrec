@@ -67,10 +67,14 @@ tfa2_decoder::~tfa2_decoder()
 //-------------------------------------------------------------------------
 void tfa2_decoder::flush(int rssi, int offset)
 {
-   if (type == TX22)
+   if (m_SendorType == TX22)
+   {
       flush_tx22(rssi, offset);
+   }
    else
+   {
       flush_tfa(rssi, offset);
+   }
 }
 //-------------------------------------------------------------------------
 void tfa2_decoder::flush_tx22(int rssi, int offset)
@@ -158,7 +162,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
          }
       }
       sensordata_t sd;
-      sd.type = type;
+      sd.type = m_SendorType;
       sd.temp = 0;
       sd.humidity = 0;
       sd.sequence = 0;
@@ -167,7 +171,7 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
       sd.flags = 0;
       sd.ts = time(0);
 
-      int new_id = (type << 28) | (id << 4);
+      int new_id = (m_SendorType << 28) | (id << 4);
       if (dbg >= 0)
       {
          printf("TX22 ID %x, ", new_id);
@@ -224,12 +228,15 @@ void tfa2_decoder::flush_tx22(int rssi, int offset)
    {
       bad++;
       if (crc_val != crc_calc)
-         printf("TX22(%02x) BAD %i RSSI %i  Offset %.0lfkHz (CRC %02x %02x) len %i\n", 1 << type, bad, rssi,
-            -1536.0 * offset / 131072,
-            crc_val, crc_calc, byte_cnt);
+      {
+         printf("TX22(%02x) BAD %i RSSI %i  Offset %.0lfkHz (CRC %02x %02x) len %i\n", 1 << m_SendorType, bad, rssi,
+            -1536.0 * offset / 131072, crc_val, crc_calc, byte_cnt);
+      }
       else
-         printf("TX22(%02x) BAD %i RSSI %i  Offset %.0lfkHz len %i (SANITY)\n", 1 << type, bad, rssi, -1536.0 * offset
-            / 131072, byte_cnt);
+      {
+         printf("TX22(%02x) BAD %i RSSI %i  Offset %.0lfkHz len %i (SANITY)\n", 1 << m_SendorType, bad, rssi, -1536.0
+            * offset / 131072, byte_cnt);
+      }
       fflush (stdout);
    }
    sr_cnt = -1;
@@ -246,11 +253,13 @@ void tfa2_decoder::flush_tfa(int rssi, int offset)
       {
          printf("#%03i %u  ", snum++, (uint32_t) time(0));
          for (int n = 0; n < 7; n++)
+         {
             printf("%02x ", rdata[n]);
+         }
          printf("                      ");
       }
 
-      int id = (type << 28) | (rdata[2] << 8) | (rdata[3] & 0xc0);
+      int id = (m_SendorType << 28) | (rdata[2] << 8) | (rdata[3] & 0xc0);
       double temp = ((rdata[3] & 0xf) * 100 + (rdata[4] >> 4) * 10 + (rdata[4] & 0xf));
       temp = temp / 10 - 40;
       int hum = rdata[5];
@@ -270,12 +279,12 @@ void tfa2_decoder::flush_tfa(int rssi, int offset)
          if (dbg >= 0)
          {
             printf("TFA%i ID %06x %+.1lf %i%% RSSI %i Offset %.0lfkHz\n",
-               type + 1, id, temp, hum, rssi,
+               m_SendorType + 1, id, temp, hum, rssi,
                -1536.0 * offset / 131072);
             fflush (stdout);
          }
          sensordata_t sd;
-         sd.type = type;
+         sd.type = m_SendorType;
          sd.id = id;
          sd.temp = temp;
          sd.humidity = hum;
@@ -292,11 +301,11 @@ void tfa2_decoder::flush_tfa(int rssi, int offset)
          if (dbg)
          {
             if (crc_val != crc_calc)
-               printf("TFA%i BAD %i RSSI %i  Offset %.0lfkHz (CRC %02x %02x)\n", type + 1, bad, rssi,
+               printf("TFA%i BAD %i RSSI %i  Offset %.0lfkHz (CRC %02x %02x)\n", m_SendorType + 1, bad, rssi,
                   -1536.0 * offset / 131072,
                   crc_val, crc_calc);
             else
-               printf("TFA%i BAD %i RSSI %i  Offset %.0lfkHz (SANITY)\n", type + 1, bad, rssi, -1536.0 * offset
+               printf("TFA%i BAD %i RSSI %i  Offset %.0lfkHz (SANITY)\n", m_SendorType + 1, bad, rssi, -1536.0 * offset
                   / 131072);
          }
       }

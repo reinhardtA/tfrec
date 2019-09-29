@@ -33,7 +33,13 @@ class decoder
 {
 public:
 
+   /**
+    * creates a decoder for a given sensor type
+    */
    decoder(sensor_e _type);
+   /**
+    * simple destructor
+    */
    virtual ~decoder();
 
    virtual int count(void)
@@ -41,9 +47,9 @@ public:
       return data.size();
    }
    virtual void execute_handler(sensordata_t &d);
-   virtual sensor_e get_type(void)
+   inline sensor_e get_type(void)
    {
-      return type;
+      return m_SendorType;
    }
    virtual int has_sync(void)
    {
@@ -59,10 +65,13 @@ public:
 
 protected:
 
+   // the decoders sensor type
+   sensor_e m_SendorType;
+
    int dbg;
    int bad;
    int synced;
-   sensor_e type;
+
    uint8_t rdata[256];
    int byte_cnt;
 

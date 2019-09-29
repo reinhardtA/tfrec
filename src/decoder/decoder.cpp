@@ -10,7 +10,7 @@
 
 decoder::decoder(sensor_e _type)
 {
-   type = _type;
+   m_SendorType = _type;
    handler = NULL;
    mode = 0;
    dbg = 0;
@@ -81,7 +81,7 @@ void decoder::execute_handler(sensordata_t &d)
    {
       char cmd[512];
       uint64_t nid;
-      if (type != TFA_WHB)
+      if (m_SendorType != TFA_WHB)
       {
          nid = d.id | (d.type << 24);
          //                                     t   h  s  a  r  f ts
