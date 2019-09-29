@@ -31,7 +31,7 @@ void tfa1_demod::reset()
 //-------------------------------------------------------------------------
 int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
 {
-   int triggered = 0;
+   int tTriggered = 0;
 
    if (pwr > thresh)
    {
@@ -40,7 +40,7 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
 
    if (timeout_cnt)
    {
-      triggered++;
+      tTriggered++;
       int dev = fm_dev_nrzs(iq[0], iq[1], m_last_i, m_last_q);
 
       // Hold maximum deviation of 0-edges for reference
@@ -92,6 +92,6 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
    m_last_i = iq[0];
    m_last_q = iq[1];
 
-   return triggered;
+   return tTriggered;
 }
 //-------------------------------------------------------------------------
