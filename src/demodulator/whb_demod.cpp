@@ -1,6 +1,7 @@
 #include <math.h>
 #include <map>
 
+#include "decoder/decoder.h"
 #include "demodulator/whb_demod.h"
 
 whb_demod::whb_demod(decoder *_dec, double _spb)
@@ -59,8 +60,10 @@ int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
        */
       dev = fm_dev_nrzs(iq[0], iq[1], last_i, last_q);
       dev = iir->step(dev); // reduce noise
-      if (!dec->has_sync())
+      if (!m_ptrDecoder->has_sync())
+      {
          avg_of = iir_avg->step(0.5 * dev); // decision value for phase change
+      }
 
       int bit = 0;
       timeout_cnt--;
@@ -73,20 +76,22 @@ int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
          (tdiff > 3 * spb / 4))
       {
          bit = avg_of;
-         dec->store_bit(0);
+         m_ptrDecoder->store_bit(0);
          bitcnt++;
          int bit0 = (tdiff + spb / 2) / spb;
          for (int n = 1; n < bit0; n++)
          {
-            dec->store_bit(1);
+            m_ptrDecoder->store_bit(1);
             bitcnt++;
          }
          last_peak = step;
       }
       last_dev = dev;
 
-      if (dec->has_sync())
+      if (m_ptrDecoder->has_sync())
+      {
          rssi += (iq[0] * iq[0] + iq[1] * iq[1]);
+      }
 
 #ifdef DBG_DUMP
 		//  plot "blub" using 1:2 with lines,"blub" using 1:3 with boxes
@@ -102,11 +107,13 @@ int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
       if (!timeout_cnt)
       {
          // Flush descrambler
-         if (dec->has_sync())
+         if (m_ptrDecoder->has_sync())
          {
             for (int n = 0; n < 16; n++)
-               dec->store_bit(0);
-            dec->flush(10 * log10(1 + rssi / 4000), offset); // scale to rougly match with TFA_1-RSSI
+            {
+               m_ptrDecoder->store_bit(0);
+            }
+            m_ptrDecoder->flush(10 * log10(1 + rssi / 4000), offset); // scale to rougly match with TFA_1-RSSI
          }
          reset();
          rssi = 0;

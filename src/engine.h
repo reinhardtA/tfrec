@@ -20,7 +20,7 @@ class engine
 {
 public:
    engine(int device, uint32_t freq, int gain, int filter, fsk_demod *fsk, int dbg, int dmpmode, char *dumpfile);
-   ~engine(void);
+   ~engine();
    void run(int timeout);
 
    void get_properties(std::string &vendor, std::string &product, std::string &serial)
@@ -39,7 +39,7 @@ private:
    int filter_type;
    int dbg;
    int read_dump;
-   sdr *s;
+   sdr *m_ptrSdr;
    int dumpmode;
    char *dumpfile;
 };

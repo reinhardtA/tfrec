@@ -158,7 +158,7 @@ int sdr::stop(void)
 }
 //-------------------------------------------------------------------------
 // l: number of samples
-int sdr::set_buffer_len(int l)
+int sdr::set_buffer_len(int paramBufferLength)
 {
    if (true == m_IsRunning)
    {
@@ -171,9 +171,9 @@ int sdr::set_buffer_len(int l)
    }
 
    // alloc some stuff
-   buffer = (int16_t*) malloc(sizeof(int16_t) * l);
+   buffer = (int16_t*) malloc(sizeof(int16_t) * paramBufferLength);
 
-   buffer_len = l;
+   buffer_len = paramBufferLength;
    wr_ptr = 0;
    rd_ptr = 0;
 

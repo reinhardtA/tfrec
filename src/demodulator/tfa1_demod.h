@@ -11,8 +11,9 @@ class tfa1_demod: public demodulator
 public:
    tfa1_demod(decoder *_dec);
    virtual ~tfa1_demod();
-   void reset();
+
    int demod(int thresh, int pwr, int index, int16_t *iq);
+   void reset();
 
 private:
    int timeout_cnt;

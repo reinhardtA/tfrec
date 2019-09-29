@@ -35,19 +35,24 @@ engine::engine(int _device, uint32_t freq, int gain, int filter, fsk_demod *_fsk
 
    if (dumpmode >= 0)
    {
-      s = new sdr(_device, dbg, dumpmode, dumpfile);
-      if (NULL != s)
+      m_ptrSdr = new sdr(_device, dbg, dumpmode, dumpfile);
+      if (NULL != m_ptrSdr)
       {
          if (gain == -1)
          {
-            s->set_gain(eGainMode::eAuto, 0);
+            m_ptrSdr->set_gain(eGainMode::eAuto, 0);
          }
          else
          {
-            s->set_gain(eGainMode::eUser, gain);
+            m_ptrSdr->set_gain(eGainMode::eUser, gain);
          }
-         s->set_frequency(freq);
-         s->set_samplerate(m_SampleRate);
+         m_ptrSdr->set_frequency(freq);
+         m_ptrSdr->set_samplerate(m_SampleRate);
+      }
+      else
+      {
+         //TODO: print error!
+         exit(-1);
       }
    }
 }
@@ -62,7 +67,7 @@ void engine::run(int timeout)
 
    if (dumpmode >= 0)
    {
-      s->start();
+      m_ptrSdr->start();
    }
    else
    {
@@ -103,7 +108,7 @@ void engine::run(int timeout)
       }
       else
       {
-         s->wait(data, len); // len=total sample number = #i+#q
+         m_ptrSdr->wait(data, len); // len=total sample number = #i+#q
       }
 
       int ld = dc.process_iq(data, len, filter_type);
@@ -111,7 +116,7 @@ void engine::run(int timeout)
 
       if (!dump_fd)
       {
-         s->done(len);
+         m_ptrSdr->done(len);
       }
 
       if (timeout && (time(0) - start > timeout))

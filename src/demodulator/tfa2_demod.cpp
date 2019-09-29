@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "decoder/decoder.h"
 #include "demodulator/tfa2_demod.h"
 
 //-------------------------------------------------------------------------
@@ -17,7 +18,7 @@ tfa2_demod::~tfa2_demod()
 {
 }
 //-------------------------------------------------------------------------
-void tfa2_demod::reset(void)
+void tfa2_demod::reset()
 {
    offset = 0;
    bitcnt = 0;
@@ -87,31 +88,33 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
       int bdbg = 0;
       if ((dev > noffset + dmax / margin || dev < noffset + dmin / margin) && bit != last_bit)
       {
-         if (index > (last_bit_idx + 8))
+         if (index > (m_IdxLastBit + 8))
          { // Ignore glitches
             bitcnt++;
-            int tdiff = index - last_bit_idx;
+            int tdiff = index - m_IdxLastBit;
             // Determine number of bits depending on time between edges
             if (tdiff > spb / 4 && tdiff < 32 * spb)
             {
-               //printf("%i %i %i \n",bit,last_bit,(index-last_bit_idx)/2);
-               int bit_diff = (index - last_bit_idx) / 2;
+               //printf("%i %i %i \n",bit,last_bit,(index-m_IdxLastBit)/2);
+               int bit_diff = (index - m_IdxLastBit) / 2;
                int numbits = (bit_diff + (est_spb / 2)) / est_spb;
                if (numbits < 32)
                { // Sanity
-                 //printf("   %i %i %i %i nb %i %.1f\n",  bit,last_bit,dev,(index-last_bit_idx)/2,numbits,fnumbits);
+                 //printf("   %i %i %i %i nb %i %.1f\n",  bit,last_bit,dev,(index-m_IdxLastBit)/2,numbits,fnumbits);
                   for (int n = 1; n < numbits; n++)
                   {
-                     dec->store_bit(last_bit);
+                     m_ptrDecoder->store_bit(last_bit);
                   }
                }
-               dec->store_bit(bit);
+               m_ptrDecoder->store_bit(bit);
                last_bit = bit;
                bdbg = bit;
             }
          }
-         if (index - last_bit_idx > 2)
-            last_bit_idx = index;
+         if ((index - m_IdxLastBit) > 2)
+         {
+            m_IdxLastBit = index;
+         }
       }
 
 #ifdef DBG_DUMP
@@ -132,10 +135,12 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
       {
          // Add some trailing bits
          for (int n = 0; n < 16; n++)
-            dec->store_bit(last_bit);
+         {
+            m_ptrDecoder->store_bit(last_bit);
+         }
 
          //printf("MIN %i MAX %i OFFSET %i RSSI-Raw %i\n",dmin,dmax,offset,rssi);
-         dec->flush(10 * log10(rssi), offset);
+         m_ptrDecoder->flush(10 * log10(rssi), offset);
          reset();
       }
    }

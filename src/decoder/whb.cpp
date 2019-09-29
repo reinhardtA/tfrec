@@ -331,8 +331,8 @@ void whb_decoder::decode_0b(uint8_t *msg, uint64_t id, int rssi, int offset)
    {
       uint32_t v = BE32(msg + 3 + 4 * i);
       dir[i] = 22.5 * (v >> 28); // 0: N 90:E 180:S
-      speed[i] = ((v >> 16) & 0xff + 256 * ((v >> 25) & 1)) / 10.0;
-      gust[i] = ((v >> 8) & 0xff + 256 * ((v >> 24) & 1)) / 10.0;
+      speed[i] = (((v >> 16) & 0xff) + (256 * ((v >> 25) & 1))) / 10.0;
+      gust[i] = (((v >> 8) & 0xff) + (256 * ((v >> 24) & 1))) / 10.0;
       times[i] = (v & 0xff) * 2;
       if (dbg >= 0 && (i == 0 || dbg > 0))
       {

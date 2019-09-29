@@ -13,8 +13,9 @@ class tfa2_demod: public demodulator
 public:
    tfa2_demod(decoder *_dec, double spb, double iir_fac = 0.5);
    virtual ~tfa2_demod();
-   void reset(void);
+
    int demod(int thresh, int pwr, int index, int16_t *iq);
+   void reset();
 
 private:
    double spb;

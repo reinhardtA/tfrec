@@ -49,15 +49,17 @@ void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
       char *x;
       while ((x = strsep(&dp, " ")) && len < sizeof(dbuf))
       {
-         if (*x != 0)
+         if (0 != *x)
+         {
             dbuf[len++] = strtol(x, NULL, 16);
+         }
       }
       for (size_t n = 0; n < demods->size(); n++)
       {
-         demods->at(n)->dec->store_bytes(dbuf, len);
-         demods->at(n)->dec->flush(0);
+         demods->at(n)->m_ptrDecoder->store_bytes(dbuf, len);
+         demods->at(n)->m_ptrDecoder->flush(0);
          puts("");
-         demods->at(n)->dec->flush_storage();
+         demods->at(n)->m_ptrDecoder->flush_storage();
       }
    }
    fclose(fd);
@@ -256,7 +258,7 @@ int main(int argc, char **argv)
       printf("Mode 1 -> Print every message\n");
       for (size_t n = 0; n < demods.size(); n++)
       {
-         demods.at(n)->dec->flush_storage();
+         demods.at(n)->m_ptrDecoder->flush_storage();
       }
    }
 }

@@ -13,8 +13,9 @@ class whb_demod: public demodulator
 public:
    whb_demod(decoder *_dec, double spb);
    virtual ~whb_demod();
-   void reset(void);
+
    int demod(int thresh, int pwr, int index, int16_t *iq);
+   void reset(void);
 
 private:
    double spb;

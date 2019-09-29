@@ -3,29 +3,22 @@
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 demodulator::demodulator(decoder *_dec)
+   :
+   m_ptrDecoder(_dec)
+      , m_IdxLastBit(0)
 {
-   dec = _dec;
-   last_bit_idx = 0;
 }
+
 demodulator::~demodulator()
 {
 }
+
 //-------------------------------------------------------------------------
 void demodulator::start(int len)
 {
-   if (last_bit_idx)
+   if (m_IdxLastBit)
    {
       // handle data wrap from last block processing
-      last_bit_idx -= len;
+      m_IdxLastBit -= len;
    }
-}
-//-------------------------------------------------------------------------
-int demodulator::demod(int thresh, int pwr, int index, int16_t *iq)
-{
-   return 0;
-}
-//-------------------------------------------------------------------------
-void demodulator::reset(void)
-{
-
 }
