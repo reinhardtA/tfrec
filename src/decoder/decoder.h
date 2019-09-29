@@ -64,10 +64,21 @@ public:
       return synced;
    }
 
-   virtual void flush(int rssi, int offset = 0);
+   /**
+    * TODO : description
+    * needs to be implemented by child!
+    */
+   virtual void flush(int rssi, int offset) = 0;
+
+   /**
+    * TODO : description
+    * needs to be implemented by child!
+    */
+   virtual void store_bit(int bit) = 0;
+
    virtual void flush_storage();
    virtual void set_params(char *_handler, int _mode, int _dbg);
-   virtual void store_bit(int bit);
+
    virtual void store_bytes(uint8_t *d, int len);
    virtual void store_data(sensordata_t const &d);
 

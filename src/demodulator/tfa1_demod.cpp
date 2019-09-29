@@ -83,7 +83,7 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
       // Flush data
       if (!timeout_cnt)
       {
-         m_ptrDecoder->flush(10 * log10(rssi));
+         m_ptrDecoder->flush(10 * log10(rssi), 0);
          mark_lvl = 0;
          rssi = 0;
          m_IdxLastBit = 0;

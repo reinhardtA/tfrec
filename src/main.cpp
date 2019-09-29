@@ -23,46 +23,49 @@
 
 #include "utils/crc32.h"
 //-------------------------------------------------------------------------
-/* Read hex dump files (xx xx xx ...), each message in a line
- Allows test decoding of already demodulated mmessages
- */
+/** Read hex dump files (xx xx xx ...), each message in a line
+ * Allows test decoding of already demodulated mmessages
+ **/
 void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
 {
-   FILE *fd = fopen(test_file, "r");
-   if (!fd)
+   FILE *const fd = fopen(test_file, "r");
+   if (NULL == fd)
    {
       perror("Can't open message file");
       exit(-1);
    }
-   char buf[1024];
-   while (fgets(buf, sizeof(buf), fd))
+   else
    {
-      // Skip comment lines
-      if (buf[0] == '#')
+      char buf[1024];
+      while (fgets(buf, sizeof(buf), fd))
       {
-         continue;
-      }
-      unsigned char dbuf[512];
-      // convertdump line to binary
-      size_t len = 0;
-      char *dp = buf;
-      char *x;
-      while ((x = strsep(&dp, " ")) && len < sizeof(dbuf))
-      {
-         if (0 != *x)
+         // Skip comment lines
+         if (buf[0] == '#')
          {
-            dbuf[len++] = strtol(x, NULL, 16);
+            continue;
+         }
+         unsigned char dbuf[512];
+         // convertdump line to binary
+         size_t len = 0;
+         char *dp = buf;
+         char *x;
+         while ((x = strsep(&dp, " ")) && len < sizeof(dbuf))
+         {
+            if (0 != *x)
+            {
+               dbuf[len++] = strtol(x, NULL, 16);
+            }
+         }
+         for (size_t n = 0; n < demods->size(); n++)
+         {
+            demods->at(n)->m_ptrDecoder->store_bytes(dbuf, len);
+            demods->at(n)->m_ptrDecoder->flush(0, 0);
+            puts("");
+            demods->at(n)->m_ptrDecoder->flush_storage();
          }
       }
-      for (size_t n = 0; n < demods->size(); n++)
-      {
-         demods->at(n)->m_ptrDecoder->store_bytes(dbuf, len);
-         demods->at(n)->m_ptrDecoder->flush(0);
-         puts("");
-         demods->at(n)->m_ptrDecoder->flush_storage();
-      }
+      fclose(fd);
    }
-   fclose(fd);
 }
 //-------------------------------------------------------------------------
 void timeout_handler(int sig)

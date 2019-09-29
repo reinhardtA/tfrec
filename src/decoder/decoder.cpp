@@ -29,20 +29,12 @@ void decoder::set_params(char *_handler, int _mode, int _dbg)
    dbg = _dbg;
 }
 //-------------------------------------------------------------------------
-void decoder::store_bit(int bit)
-{
-}
-//-------------------------------------------------------------------------
 // Shortcut for testing
 void decoder::store_bytes(uint8_t *d, int len)
 {
    memcpy(rdata, d, len);
    byte_cnt = len;
    synced = 1;
-}
-//-------------------------------------------------------------------------
-void decoder::flush(int rssi, int offset)
-{
 }
 //-------------------------------------------------------------------------
 void decoder::store_data(sensordata_t const &d)

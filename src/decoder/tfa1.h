@@ -15,7 +15,7 @@ public:
    void store_bit(int bit);
 
    // TODO : remove default value
-   void flush(int rssi, int offset = 0);
+   void flush(int rssi, int offset);
 
 private:
    uint32_t sr;
