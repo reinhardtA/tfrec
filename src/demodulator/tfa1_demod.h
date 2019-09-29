@@ -3,8 +3,6 @@
 
 // Base Classes
 #include "demodulator/demodulator.h"
-// Helper
-#include "utils/crc8.h"
 
 class tfa1_demod: public demodulator
 {

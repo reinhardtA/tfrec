@@ -21,7 +21,6 @@
 #include "demodulator/tfa2_demod.h"
 #include "demodulator/whb_demod.h"
 
-#include "utils/crc32.h"
 //-------------------------------------------------------------------------
 /** Read hex dump files (xx xx xx ...), each message in a line
  * Allows test decoding of already demodulated mmessages

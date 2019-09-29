@@ -4,9 +4,7 @@
 // Bases Classes
 #include "demodulator/demodulator.h"
 
-// Helper
-#include "utils/dsp/iir.h"
-#include "utils/crc8.h"
+class iir2;
 
 class tfa2_demod: public demodulator
 {

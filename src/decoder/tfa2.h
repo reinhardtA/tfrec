@@ -5,8 +5,8 @@
 #include "decoder/decoder.h"
 
 // Helper
+#include "utils/crc/crc8.h"
 #include "utils/dsp_stuff.h"
-#include "utils/crc8.h"
 
 class tfa2_decoder: public decoder
 {

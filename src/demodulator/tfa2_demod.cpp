@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "utils/dsp_stuff.h"
+#include "utils/dsp/iir.h"
 
 #include "decoder/decoder.h"
 #include "demodulator/tfa2_demod.h"

@@ -5,8 +5,8 @@
 #include "decoder/decoder.h"
 
 // Helper
+#include "utils/crc/crc32.h"
 #include "utils/dsp_stuff.h"
-#include "utils/crc32.h"
 
 class whb_decoder: public decoder
 {

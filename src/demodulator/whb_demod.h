@@ -5,8 +5,8 @@
 #include "demodulator/demodulator.h"
 
 // Helper
+//#include "utils/crc/crc32.h"
 #include "utils/dsp_stuff.h"
-#include "utils/crc32.h"
 
 // forward
 class iir2;

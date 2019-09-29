@@ -4,7 +4,7 @@
 
  #include <GPL-v2>
 
- dsp_stuff.cpp - Some useful DSP functions
+ some useful DSP functions -> refactored to utils/dsp
 
  Some parts inspired from librtlsdr (rtl_fm.c)
  * rtl-sdr, turns your Realtek RTL2832 based DVB dongle into a SDR receiver
@@ -12,7 +12,6 @@
  * Copyright (C) 2012 by Hoernchen <la@tfc-server.de>
  * Copyright (C) 2012 by Kyle Keen <keenerd@gmail.com>
  * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
-
 
  */
 
@@ -41,7 +40,6 @@ int fm_dev_nrzs(int ar, int aj, int br, int bj)
 //-------------------------------------------------------------------------
 // Real FM demodulation
 //-------------------------------------------------------------------------
-#if 1
 int fm_dev(int ar, int aj, int br, int bj)
 {
    double cr, cj;
@@ -51,5 +49,3 @@ int fm_dev(int ar, int aj, int br, int bj)
    angle = atan2(cj, cr);
    return (int) (angle / M_PI * (1 << 14));
 }
-#endif
-//-------------------------------------------------------------------------
