@@ -12,11 +12,11 @@
 class iir2
 {
 public:
-   iir2(double cutoff);
+   iir2(double const &cutoff);
    virtual ~iir2();
 
-   double step(double din);
-   void set(double cutoff);
+   double step(double const &din);
+   void set(double const &cutoff);
 
 private:
    double dn1, dn2;

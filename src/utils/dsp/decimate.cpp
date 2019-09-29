@@ -107,7 +107,7 @@ static int16_t dec_filter_taps2w[DEC_TAP_NUM2] =
       2121,
    };
 
-decimate::decimate(void)
+decimate::decimate()
 {
    for (int i = 0; i < 2 * DEC_TAP_NUM1; i++)
    {
@@ -154,7 +154,9 @@ int decimate::process2x(int16_t *data, int length, int type)
    {
 
       for (int n = 0; n < DEC_TAP_NUM1 - 2; n++)
+      {
          t0[n] = t0[n + 2];
+      }
 
       t0[DEC_TAP_NUM1 - 2] = data[i];
       t0[DEC_TAP_NUM1 - 1] = data[i + 2];
@@ -162,12 +164,16 @@ int decimate::process2x(int16_t *data, int length, int type)
       sum = 0;
 
       for (int n = 0; n < DEC_TAP_NUM1; n++)
+      {
          sum += (t0[n] * taps[n]) >> shift;
+      }
 
       data[i / 2] = sum;
    }
    for (int i = 0; i < DEC_TAP_NUM1; i++)
+   {
       hist0[i] = t0[i];
+   }
    return 0;
 }
 //-------------------------------------------------------------------------

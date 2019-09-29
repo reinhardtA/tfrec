@@ -80,7 +80,7 @@ void engine::run(int timeout)
          exit(-1);
       }
    }
-   downconvert dc(2);
+   downconvert tDonwConverter(2);
 
    time_t start = time(0);
 
@@ -113,7 +113,7 @@ void engine::run(int timeout)
          m_ptrSdr->wait(data, len); // len=total sample number = #i+#q
       }
 
-      int ld = dc.process_iq(data, len, filter_type);
+      int ld = tDonwConverter.process_iq(data, len, filter_type);
       fsk->process(data, ld);
 
       if (!dump_fd)

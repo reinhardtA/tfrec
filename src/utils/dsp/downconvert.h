@@ -15,8 +15,8 @@
 class downconvert
 {
 public:
-   downconvert(int p);
-   virtual ~downconvert(void);
+   downconvert(int const &paramNumberPasses);
+   virtual ~downconvert();
    int process_iq(int16_t *buf, int len, int filter = 0);
 
 private:

@@ -18,9 +18,9 @@
 
 #include "downconvert.h"
 
-downconvert::downconvert(int p)
+downconvert::downconvert(int const &paramNumberPasses)
 {
-   passes = p;
+   passes = paramNumberPasses;
    dec_i.resize(passes);
    dec_q.resize(passes);
 }
@@ -37,6 +37,7 @@ int downconvert::process_iq(int16_t *data_iq, int len, int filter_type)
    {
       dec_i[i].process2x1(data_iq, len);
       dec_q[i].process2x1(data_iq + 1, len);
+
       len = len >> 1;
    }
 #else
@@ -48,6 +49,7 @@ int downconvert::process_iq(int16_t *data_iq, int len, int filter_type)
 #endif
    dec_i[passes - 1].process2x(data_iq, len, ft);
    dec_q[passes - 1].process2x(data_iq + 1, len, ft);
+
    len = len >> 1;
 
    return len;
