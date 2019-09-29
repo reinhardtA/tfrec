@@ -25,8 +25,8 @@ void tfa1_demod::reset()
    mark_lvl = 0;
    rssi = 0;
    m_IdxLastBit = 0;
-   last_i = 0;
-   last_q = 0;
+   m_last_i = 0;
+   m_last_q = 0;
 }
 //-------------------------------------------------------------------------
 int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
@@ -41,7 +41,7 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
    if (timeout_cnt)
    {
       triggered++;
-      int dev = fm_dev_nrzs(iq[0], iq[1], last_i, last_q);
+      int dev = fm_dev_nrzs(iq[0], iq[1], m_last_i, m_last_q);
 
       // Hold maximum deviation of 0-edges for reference
       if (dev > mark_lvl)
@@ -89,8 +89,8 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
          m_IdxLastBit = 0;
       }
    }
-   last_i = iq[0];
-   last_q = iq[1];
+   m_last_i = iq[0];
+   m_last_q = iq[1];
 
    return triggered;
 }

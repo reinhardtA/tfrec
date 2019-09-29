@@ -16,8 +16,11 @@ public:
    void reset();
 
 private:
+   int m_last_i;
+   int m_last_q;
+
    int timeout_cnt;
-   int last_i, last_q;
+
    int mark_lvl;
    int rssi;
 };
