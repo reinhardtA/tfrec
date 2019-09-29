@@ -3,30 +3,38 @@
 //-------------------------------------------------------------------------
 crc8::crc8(int paramPolynom)
 {
-   int n, m;
+   int n;
+   int m;
    for (n = 0; n < 256; n++)
    {
       int t = n;
       for (m = 0; m < 8; m++)
       {
          if ((t & 0x80) != 0)
+         {
             t = (t << 1) ^ paramPolynom;
+         }
          else
+         {
             t = t << 1;
+         }
       }
-      lookup[n] = t;
+      m_Lookup[n] = t;
    }
 }
+crc8::~crc8()
+{
+}
 //-------------------------------------------------------------------------
-uint8_t crc8::calc(uint8_t *data, int len)
+uint8_t crc8::calc(uint8_t const *data, int len)
 {
    int n;
-   uint8_t crc = 0;
+   uint8_t tRetCRC = 0;
 
    for (n = 0; n < len; n++)
    {
-      crc = lookup[crc ^ *data];
+      tRetCRC = m_Lookup[tRetCRC ^ *data];
       data++;
    }
-   return crc;
+   return tRetCRC;
 }

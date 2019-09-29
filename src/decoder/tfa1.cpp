@@ -42,7 +42,9 @@ tfa1_decoder::tfa1_decoder(sensor_e _type)
    byte_cnt = 0;
    snum = 0;
    bad = 0;
-   crc = new crc8(0x31); // x^8 +   x^5 + x^4  + 1
+
+   // CRC Polynom
+   m_ptrCrcPolynom = new crc8(0x31); // x^8 +   x^5 + x^4  + 1
 }
 tfa1_decoder::~tfa1_decoder()
 {
@@ -50,6 +52,7 @@ tfa1_decoder::~tfa1_decoder()
 //-------------------------------------------------------------------------
 void tfa1_decoder::flush(int rssi, int offset)
 {
+   // if we have some data, at least the 10 bytes
    if (byte_cnt >= 10)
    {
       // get the time
@@ -66,26 +69,32 @@ void tfa1_decoder::flush(int rssi, int offset)
          }
          printf("          ");
       }
+      // ID
       int id = ((rdata[2] << 8) | rdata[3]) & 0x7fff;
+      // Battery Status
       int batfail = (rdata[7] & 0x80) >> 7;
+      // Temperature
       double temp = ((rdata[4] & 0xf) * 100) + ((rdata[5] >> 4) * 10) + (rdata[5] & 0xf);
       temp = (temp / 10) - 40;
+      // Humidity
       int hum = rdata[6];
+      // Sequence Number
       int seq = rdata[8] >> 4;
+      // CRC in Datagramm
       uint8_t crc_val = rdata[10];
-      uint8_t crc_calc = crc->calc(&rdata[2], 8);
+      // calculated CRC
+      uint8_t crc_calc = m_ptrCrcPolynom->calc(&rdata[2], 8);
 
       // CRC and sanity checks
-      if (crc_val == crc_calc
-         && ((rdata[4] & 0xf0) == 0x80 // ignore all learning messages except sensor fails
-         || hum == 0x7f || hum == 0x6a)
-         && hum <= 0x7f              // catch sensor fail due to lowbat
-         && (rdata[7] & 0x60) == 0x60      // 0x60 or 0x70
-         && (rdata[8] & 0xf) == 0
-         && rdata[9] == 0x56 // Type?
-            )
+      if ((crc_val == crc_calc)                 // CRC Check
+      && ((rdata[4] & 0xf0) == 0x80            // ignore all learning messages except sensor fails
+      || hum == 0x7f || hum == 0x6a)
+         && (hum <= 0x7f)                       // catch sensor fail due to lowbat
+         && ((rdata[7] & 0x60) == 0x60)         // 0x60 or 0x70
+         && ((rdata[8] & 0xf) == 0)
+         && (rdata[9] == 0x56)                  // Type?
+         )
       {
-
          // .3181/.3199 has only temperature, humidity is 0x6a
          if (hum == 0x6a)
          {
@@ -95,7 +104,7 @@ void tfa1_decoder::flush(int rssi, int offset)
          // Sensor values may fail at 0xaaa/0xfff or 0x7f due to low battery
          // even without lowbat bit
          // Set it to 2 -> sensor data not valid
-         if (rdata[5] == 0xff || rdata[5] == 0xaa || hum == 0x7f)
+         if ((rdata[5] == 0xff) || (rdata[5] == 0xaa) || (hum == 0x7f))
          {
             batfail = 2;
             hum = 0;
@@ -145,6 +154,8 @@ void tfa1_decoder::flush(int rssi, int offset)
          }
       }
    }
+
+   // reset some values
    sr_cnt = -1;
    byte_cnt = 0;
    rdata[10] = 0x00; // clear crc
@@ -152,12 +163,19 @@ void tfa1_decoder::flush(int rssi, int offset)
 //-------------------------------------------------------------------------
 void tfa1_decoder::store_bit(int bit)
 {
+
    sr = (sr >> 1) | (bit << 31);
+
+   // Check for Sync Bytes
    if ((sr & 0xffff) == 0xd42d)
-   { // Sync start
+   {
+      // Sync start
       sr_cnt = 0;
       byte_cnt = 0;
    }
+
+   // This will be triggered if the sync sequence was hit !!
+   // remember that the sr_cnt will be reset to -1 after each flush !!
    if (sr_cnt == 0)
    {
       if (byte_cnt < (int) sizeof(rdata))
