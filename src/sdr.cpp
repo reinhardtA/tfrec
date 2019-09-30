@@ -26,12 +26,14 @@
 
 //-------------------------------------------------------------------------
 sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
+   :
+   m_Logger("SDR : ")
 {
-   buffer = 0;
+   m_ptrBuffer = 0;
    wr_ptr = 0;
    rd_ptr = 0;
-   r_thread = NULL;
-   dump_fd = NULL;
+   m_SdrReadThread = NULL;
+   m_FileDataDump = NULL;
 
    m_IsRunning = false;
    m_DebugMode = _dbg ? true : false;
@@ -39,13 +41,24 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
 
    m_ptrRtlSdrDevice = NULL;
 
-   if (dumpmode > 0 && dumpfile)
+   // dumpmode = -1 -> LOAD Data from File
+   // dumpmode = 0 | 1 -> SDR Only | SAVE Data
+   if (0 < dumpmode)
    {
-      dump_fd = fopen(dumpfile, "wb");
-      if (!dump_fd)
+      if (NULL != dumpfile)
       {
-         perror(dumpfile);
-         exit(-1);
+         // save the data
+         m_FileDataDump = fopen(dumpfile, "wb");
+         if (NULL == m_FileDataDump)
+         {
+            printf("(%s) %s : %s\n", "ERR", m_Logger.c_str(), "cant open dump file!");
+            perror(dumpfile);
+            exit(-1);
+         }
+      }
+      else
+      {
+         printf("(%s) %s : %s\n", "WAR", m_Logger.c_str(), "cant save data, no file given!");
       }
    }
 
@@ -71,9 +84,9 @@ sdr::sdr(int dev_index, int _dbg, int dumpmode, char *dumpfile)
       }
 
       fprintf(stderr, "cant open device, return code was :  %i\n", r);
-      fprintf(stderr, "will retry (ten times), in short time!\n");
+      fprintf(stderr, "will retry (ten times), in one second!\n");
       retryCount -= 1;
-      sleep(2);
+      sleep(1);
    }
    // set frequency correction
    set_ppm(0);
@@ -138,23 +151,29 @@ int sdr::start(void)
    rtlsdr_reset_buffer(m_ptrRtlSdrDevice);
 
    m_IsRunning = true;
-   r_thread = new std::thread(&sdr::read_thread, this);
+   m_SdrReadThread = new std::thread(&sdr::read_thread, this);
    alarm(READ_TIMEOUT);
    return 0;
 }
 //-------------------------------------------------------------------------
-int sdr::stop(void)
+void sdr::stop()
 {
-   if (NULL != r_thread)
+   if (NULL != m_SdrReadThread)
    {
+      printf("(%s) %s : %s\n", "INF", m_Logger.c_str(), "shuting down SDR Thread");
       rtlsdr_cancel_async(m_ptrRtlSdrDevice);
-      r_thread->join();
-      delete r_thread;
-      r_thread = NULL;
+      m_SdrReadThread->join();
+      delete m_SdrReadThread;
+      m_SdrReadThread = NULL;
+   }
+
+   if (NULL != m_FileDataDump)
+   {
+      printf("(%s) %s : %s\n", "INF", m_Logger.c_str(), "closing file handle");
+      fclose(m_FileDataDump);
    }
 
    m_IsRunning = false;
-   return 0;
 }
 //-------------------------------------------------------------------------
 // l: number of samples
@@ -165,13 +184,13 @@ int sdr::set_buffer_len(int paramBufferLength)
       return 0;
    }
 
-   if (NULL != buffer)
+   if (NULL != m_ptrBuffer)
    {
-      free(buffer);
+      free(m_ptrBuffer);
    }
 
    // alloc some stuff
-   buffer = (int16_t*) malloc(sizeof(int16_t) * paramBufferLength);
+   m_ptrBuffer = (int16_t*) malloc(sizeof(int16_t) * paramBufferLength);
 
    buffer_len = paramBufferLength;
    wr_ptr = 0;
@@ -263,7 +282,7 @@ int sdr::set_gain(eGainMode paramGainMaode, float paramGainValue)
    {
       if (true == m_DebugMode)
       {
-         printf("GAIN Mode  : AUTO \n");
+         printf("(%s) %s : %s\n", "DBG", m_Logger.c_str(), "GAIN Mode -> AUTO");
       }
       rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 0);
    }
@@ -271,7 +290,7 @@ int sdr::set_gain(eGainMode paramGainMaode, float paramGainValue)
    {
       if (true == m_DebugMode)
       {
-         printf("GAIN Mode  : USER\n");
+         printf("(%s) %s : %s\n", "DBG", m_Logger.c_str(), "GAIN Mode -> USER");
       }
       rtlsdr_set_tuner_gain_mode(m_ptrRtlSdrDevice, 1);
 
@@ -281,15 +300,14 @@ int sdr::set_gain(eGainMode paramGainMaode, float paramGainValue)
    }
    else
    {
-      printf("ERR : gein Mode unknown");
-      return -1;
+      printf("(%s) %s : %s\n", "ERR", m_Logger.c_str(), "GAIN Mode -> UNKNOWN");
    }
 
    // get the gain
    m_GainValue = rtlsdr_get_tuner_gain(m_ptrRtlSdrDevice);
    if (true == m_DebugMode)
    {
-      printf("GAIN Value : %.1f\n", m_GainValue / 10.0);
+      printf("(%s) %s : %s : %.1f\n", "DBG", m_Logger.c_str(), "GAIN Value", m_GainValue / 10.0);
    }
 
    return m_GainValue;
@@ -308,7 +326,7 @@ int sdr::set_ppm(int paramFrequencyCorrection)
    m_FrequencyCorrection = rtlsdr_get_freq_correction(m_ptrRtlSdrDevice);
    if (true == m_DebugMode)
    {
-      printf("Freq. Corr : %i\n", m_FrequencyCorrection);
+      printf("(%s) %s : %s -> %i\n", "DBG", m_Logger.c_str(), "Freq. Corr!", m_FrequencyCorrection);
    }
 
    return tRet;
@@ -316,36 +334,37 @@ int sdr::set_ppm(int paramFrequencyCorrection)
 //-------------------------------------------------------------------------
 int sdr::set_samplerate(int s)
 {
+   int tRet = -1;
    if (NULL == m_ptrRtlSdrDevice)
    {
-      printf("ERR : No Device");
-      return -1;
+      printf("(%s) %s : %s\n", "ERR", m_Logger.c_str(), "No Device!");
    }
-
-   int tRet = rtlsdr_set_sample_rate(m_ptrRtlSdrDevice, s);
-   if (true == m_DebugMode)
+   else
    {
-      printf("Samplerate %i\n", s);
+      int tRet = rtlsdr_set_sample_rate(m_ptrRtlSdrDevice, s);
+      if (true == m_DebugMode)
+      {
+         printf("Samplerate %i\n", s);
+      }
+      cur_sr = s;
    }
-   cur_sr = s;
    return tRet;
 }
 //-------------------------------------------------------------------------
 
-void sdr::read_data(unsigned char *buf, uint32_t len)
+void sdr::read_data(unsigned char const *const buf, uint32_t const &len)
 {
-   //printf("Got %i\n", len);
-
    int w = wr_ptr;
 
-   if (dump_fd)
+   if (NULL != m_FileDataDump)
    {
-      fwrite(buf, len, 1, dump_fd);
+      // write data to dump file if it is set
+      fwrite(buf, len, 1, m_FileDataDump);
    }
 
    for (uint32_t i = 0; i < len; i++)
    {
-      buffer[w++] = ((int16_t)(buf[i]) - 128) << 6; // Scale to +-8192
+      m_ptrBuffer[w++] = ((int16_t)(buf[i]) - 128) << 6; // Scale to +-8192
       if (w >= buffer_len)
       {
          w = 0;
@@ -355,36 +374,35 @@ void sdr::read_data(unsigned char *buf, uint32_t len)
    safe_cond_signal(&ready, &ready_m);
 }
 //-------------------------------------------------------------------------
-static void sdr_read_callback(unsigned char *buf, uint32_t len, void *ctx)
+static void callback(unsigned char *buf, uint32_t len, void *ctx)
 {
    if (NULL == ctx)
    {
-      // no valid ptr
-      printf("ERR : No valid SDR Ptr!");
-      return;
+      printf("(%s) %s : %s\n", "ERR", "STATIC", "No valid SDR Ptr!");
    }
-
-   // cast the "context"
-   sdr *this_ptr = (sdr*) ctx;
-   this_ptr->read_data(buf, len);
-   alarm(READ_TIMEOUT);
+   else
+   {
+      // cast the "context"
+      sdr *p = (sdr*) ctx;
+      p->read_data(buf, len);
+      alarm(READ_TIMEOUT);
+   }
 }
 //-------------------------------------------------------------------------
 void sdr::read_thread(void)
 {
    if (true == m_DebugMode)
    {
-      printf("START READ THREAD\n");
+      printf("(%s) %s : %s\n", "DBG", m_Logger.c_str(), "starting read thread");
    }
-
-   rtlsdr_read_async(m_ptrRtlSdrDevice, sdr_read_callback, this, 0, buffer_len / 8);
+   rtlsdr_read_async(m_ptrRtlSdrDevice, callback, this, 0, buffer_len / 8);
 }
 //-------------------------------------------------------------------------
-int sdr::wait(int16_t *&d, int &len)
+int sdr::wait(int16_t *&paramInData, int &len)
 {
-   //printf("SDR wait\n");
    safe_cond_wait(&ready, &ready_m);
-   d = buffer + rd_ptr;
+
+   paramInData = m_ptrBuffer + rd_ptr;
    if (rd_ptr < wr_ptr)
    {
       len = wr_ptr - rd_ptr;

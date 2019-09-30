@@ -22,19 +22,19 @@
 
 //-------------------------------------------------------------------------
 // 2nd order butterworth lowpass
-iir2::iir2(double const &cutoff)
+iir2::iir2(double const &paramCutOffFreqeuncy)
 {
    yn = yn1 = yn2 = 0;
    dn1 = dn2 = 0;
-   set(cutoff);
+   setCutOffFrequency(paramCutOffFreqeuncy);
 }
 iir2::~iir2()
 {
 }
 //-------------------------------------------------------------------------
-void iir2::set(double const &cutoff)
+void iir2::setCutOffFrequency(double const &paramCutOffFreqeuncy)
 {
-   double i = 1.0 / tan(M_PI * cutoff);
+   double i = 1.0 / tan(M_PI * paramCutOffFreqeuncy);
 
    //TODO : may be optimized as a "constant" somewhere
    //TODO : code to proove speedup as unittest

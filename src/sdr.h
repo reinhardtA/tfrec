@@ -15,16 +15,7 @@
 #include <rtl-sdr.h>
 
 #include "utils/utils.h"
-
-/**
- * defines the possible gain modes for the SDR class
- */
-enum eGainMode
-{
-   eAuto = 0,
-   eUser = 1,
-   eUnknown
-};
+#include "utils/defines.h"
 
 class sdr
 {
@@ -44,12 +35,12 @@ public:
    int set_samplerate(int paramSampleRate);
 
    int start();
-   int stop();
+   void stop();
    int wait(int16_t *&d, int &l);
    void done(int len);
 
 //	virtual	handle_data();
-   virtual void read_data(unsigned char *buf, uint32_t len);
+   virtual void read_data(unsigned char const *const buf, uint32_t const &len);
    static int search_device(char *substr);
 
    volatile int wr_ptr, rd_ptr;
@@ -63,15 +54,18 @@ private:
    std::string m_Product;
    std::string m_Serial;
 
+   std::string m_Logger;
+
    bool m_IsRunning;
    bool m_DebugMode;
 
    rtlsdr_dev_t *m_ptrRtlSdrDevice;
-   std::thread *r_thread;
+
+   std::thread *m_SdrReadThread;
    pthread_cond_t ready;
    pthread_mutex_t ready_m;
 
-   int16_t *buffer;
+   int16_t *m_ptrBuffer;
 
    eGainMode m_GainMode;
    int m_GainValue;
@@ -83,7 +77,7 @@ private:
 
    uint32_t cur_frequ;
 
-   FILE *dump_fd;
+   FILE *m_FileDataDump;
 
 };
 

@@ -12,13 +12,17 @@
 class iir2
 {
 public:
-   iir2(double const &cutoff);
+   iir2(double const &paramCutOffFreqeuncy);
    virtual ~iir2();
 
    double step(double const &din);
-   void set(double const &cutoff);
 
 private:
+   /**
+    * set the cutoff frequency
+    */
+   void setCutOffFrequency(double const &paramCutOffFreqeuncy);
+
    double dn1, dn2;
    double yn, yn1, yn2;
    double b0, b1, b2, a1, a2;

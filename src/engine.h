@@ -23,19 +23,17 @@ public:
    ~engine();
    void run(int timeout);
 
-   void get_properties(std::string &vendor, std::string &product, std::string &serial)
-   {
-      /*
-       * if (s) {
-       * s->get_properties(vendor, product, serial);
-       * }
-       */
-   }
-
 private:
+   // the logger
+   std::string m_Logger;
 
    fsk_demod *fsk;
+
+   // the sample rate
    int m_SampleRate;
+   // frequency in Hz
+   uint32_t m_Frequency;
+
    int filter_type;
    int dbg;
    int read_dump;

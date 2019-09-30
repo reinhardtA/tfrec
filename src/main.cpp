@@ -69,7 +69,9 @@ void read_raw_msgs(std::vector<demodulator*> *demods, char *test_file)
 //-------------------------------------------------------------------------
 void timeout_handler(int paramSignal)
 {
-   fprintf(stderr, "Read timeout, exiting (Signal : %i)\n", paramSignal);
+   fprintf(stderr, "Exiting Signal Received ! (%i)\n", paramSignal);
+   // TODO : shutdown in a better way
+   // add a mutex or thread that is waiting for change ..
    exit(-1);
 }
 //-------------------------------------------------------------------------
@@ -105,6 +107,12 @@ void usage(void)
 //-------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
+
+   // register some signals
+   signal(SIGALRM, timeout_handler);
+   signal(SIGTERM, timeout_handler);
+   signal(SIGINT, timeout_handler);
+
    int gain = -1;
    int freq = 868250; // 868,250 MHz
    int thresh = 0; // Auto
@@ -246,17 +254,16 @@ int main(int argc, char **argv)
       tDemodulators.push_back(new whb_demod(whb_dec, (1536000 / 4.0) / 6000));
    }
 
-   if (hexdump_file)
+   if (NULL != hexdump_file)
    {
       printf("Decoding from HexDump File\n");
       read_raw_msgs(&tDemodulators, hexdump_file);
    }
    else
    {
-      printf("Decoding from Real Data\n");
+      printf("Decoding from Real IQ Data\n");
       fsk_demod fsk(&tDemodulators, thresh, debug);
       engine e(deviceindex, freq, gain, filter, &fsk, debug, dumpmode, dumpfile);
-      signal(SIGALRM, timeout_handler);
       e.run(timeout);
    }
 
@@ -268,4 +275,7 @@ int main(int argc, char **argv)
          tDemodulators.at(idx)->m_ptrDecoder->flush_storage();
       }
    }
+
+   printf("leaving programm ... \n");
+   fflush (stdout);
 }
