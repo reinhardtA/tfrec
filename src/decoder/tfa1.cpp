@@ -135,12 +135,17 @@ void tfa1_decoder::flush(int rssi, int offset)
             , sd.rssi
             );
 
-         fflush(stdout);
+         fflush (stdout);
       }
       else
       {
          bad++;
-         if (dbg)
+
+         if (crc_val != crc_calc)
+         {
+            printf("TFA1 BAD %i RSSI %i (CRC %02x %02x)\n", bad, rssi, crc_val, crc_calc);
+         }
+         else
          {
             if (crc_val != crc_calc)
             {
@@ -150,8 +155,10 @@ void tfa1_decoder::flush(int rssi, int offset)
             {
                printf("TFA1 BAD %i RSSI %i (SANITY)\n", bad, rssi);
             }
-            fflush(stdout);
+            fflush (stdout);
          }
+
+         fflush (stdout);
       }
    }
 
