@@ -126,10 +126,10 @@ void tfa1_decoder::flush(int rssi, int offset)
          // store the data
          store_data(sd);
 
-         printf("TFA1 ID %04lx %+.1f %.0f%% seq %x lowbat %i RSSI %i\n"
-            , sd.id
+         printf("TFA1 ID %04x %+.1f %i%% seq %x lowbat %i RSSI %i\n"
+            , id
             , sd.temp
-            , sd.humidity
+            , hum
             , sd.sequence
             , sd.alarm
             , sd.rssi
