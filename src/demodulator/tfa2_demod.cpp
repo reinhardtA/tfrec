@@ -50,7 +50,9 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
    if (pwr > thresh)
    {
       if (!timeout_cnt)
+      {
          reset();
+      }
 
       timeout_cnt = 16 * spb;
    }
@@ -59,24 +61,30 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
    {
       triggered++;
 
-      int dev = fm_dev(iq[0], iq[1], last_i, last_q);
-      ld = iir->step(dev);
+      int tDeviation = fm_dev(iq[0], iq[1], m_last_i, m_last_q);
+      ld = iir->step(tDeviation);
 
       // Find deviation limits during sync word
       if (bitcnt < 10)
       {
          if (ld > dmax)
+         {
             dmax = (7 * dmax + ld) / 8;
+         }
          if (ld < dmin)
+         {
             dmin = (7 * dmin + ld) / 8;
+         }
          offset = (dmax + dmin) / 2;
          // Estimate power
          if (bitcnt > 4)
+         {
             rssi += (rssi + iq[0] * iq[0] + iq[1] * iq[1]) / 100;
+         }
       }
       timeout_cnt--;
 
-      dev = ld;
+      tDeviation = ld;
 
       // cheap compensation of 0/1 asymmetry if deviation limited in preceeding filter
       int noffset = 0.9 * offset;
@@ -85,11 +93,13 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
       int margin = 32;
 
       // Hard decision
-      if (dev > noffset + (dmax / margin))
+      if (tDeviation > noffset + (dmax / margin))
+      {
          bit = 1;
+      }
 
       int bdbg = 0;
-      if ((dev > noffset + dmax / margin || dev < noffset + dmin / margin) && bit != last_bit)
+      if ((tDeviation > noffset + dmax / margin || tDeviation < noffset + dmin / margin) && bit != last_bit)
       {
          if (index > (m_IdxLastBit + 8))
          { // Ignore glitches
@@ -147,8 +157,8 @@ int tfa2_demod::demod(int thresh, int pwr, int index, int16_t *iq)
          reset();
       }
    }
-   last_i = iq[0];
-   last_q = iq[1];
+   m_last_i = iq[0];
+   m_last_q = iq[1];
 
    return triggered;
 }

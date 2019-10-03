@@ -21,7 +21,6 @@ private:
    int dmin, dmax;
    int offset;
    int timeout_cnt;
-   int last_i, last_q;
    int last_bit;
    int rssi;
    iir2 *iir;

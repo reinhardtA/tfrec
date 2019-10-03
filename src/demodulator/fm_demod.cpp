@@ -15,79 +15,87 @@
 //-------------------------------------------------------------------------
 fsk_demod::fsk_demod(std::vector<demodulator*> *_demods, int _thresh, int _dbg)
 {
-   demods = _demods;
-   dbg = _dbg;
-   thresh = _thresh;
-   thresh_mode = 0;
-   if (thresh == 0)
+   m_Logger = "FSK-DEMOD";
+   m_DebugLevel = _dbg;
+   m_ptrDemodulators = _demods;
+   m_Threshold = _thresh;
+   m_Tthreshold_Mode = eThresholMode::eUser;
+
+   if (m_Threshold == 0)
    {
-      thresh = 500; // default
-      thresh_mode = 1; // auto
+      m_Threshold = 500; // default
+      m_Tthreshold_Mode = eThresholMode::eAuto;
    }
-   last_i = last_q = 0;
-   triggered_avg = 0;
-   runs = 0;
-   index = 0;
+   m_Last_i = 0;
+   m_Last_q = 0;
+
+   m_ProcessTriggered_Avg = 0;
+   m_NumberRuns = 0;
 }
 fsk_demod::~fsk_demod()
 {
-
 }
 //-------------------------------------------------------------------------
-void fsk_demod::process(int16_t *data_iq, int len)
+void fsk_demod::process(int16_t *data_iq, int paramLength)
 {
-   int triggered = 0;
-   runs++;
+   int tProcessTriggered = 0;
+   m_NumberRuns++;
 
-   for (size_t n = 0; n < demods->size(); n++)
+   // TODO : think about iterators ...
+   for (size_t n = 0; n < m_ptrDemodulators->size(); n++)
    {
-      demods->at(n)->start(len);
+      m_ptrDemodulators->at(n)->start(paramLength);
    }
 
-   for (int i = 0; i < len; i += 2)
+   // decode data of length paramLength, +2 due to i/q data
+   for (int idxIQdata = 0; idxIQdata < paramLength; idxIQdata += 2)
    {
-
       // Trigger decoding at power level and check some bit periods
-      int pwr = abs(data_iq[i]) + abs(data_iq[i + 1]);
-      int t = 0;
+      int tSignalPower = abs(data_iq[idxIQdata]) + abs(data_iq[idxIQdata + 1]);
+      int tDemodTrigger = 0;
 
-      for (std::size_t n = 0; n < demods->size(); n++)
+      // demodulate with every known demodulator
+      // TODO : think about iterators
+      for (std::size_t n = 0; n < m_ptrDemodulators->size(); n++)
       {
-         t += demods->at(n)->demod(thresh, pwr, i, data_iq + i);
+         tDemodTrigger += m_ptrDemodulators->at(n)->demod(m_Threshold, tSignalPower, idxIQdata, data_iq + idxIQdata);
       }
 
-      if (t)
+      if (0 != tDemodTrigger)
       {
-         triggered++;
+         tProcessTriggered++;
       }
 
-      last_i = data_iq[i];
-      last_q = data_iq[i + 1];
+      // save the current symbol for deviation calculation
+      m_Last_i = data_iq[idxIQdata];
+      m_Last_q = data_iq[idxIQdata + 1];
    }
 
-   triggered_avg = (31 * triggered_avg + triggered) / 32;
+   // calc kind of weighted average
+   m_ProcessTriggered_Avg = (31 * m_ProcessTriggered_Avg + tProcessTriggered) / 32;
 
-   if (dbg >= 3)
+   if (m_DebugLevel)
    {
-      printf("Trigger ratio %i/%i, avg %i \n", triggered, len / 2, triggered_avg);
+      // paramLength / 2 -> cause of IQ Data
+      printf("Trigger ratio %i/%i, avg %i \n", tProcessTriggered, paramLength / 2, m_ProcessTriggered_Avg);
    }
 
-   if (thresh_mode == 1 && (runs & 3) == 0)
+   if ((eThresholMode::eAuto == m_Tthreshold_Mode) && ((m_NumberRuns & 3) == 0))
    {
-      if (triggered_avg >= len / 32)
+      if (m_ProcessTriggered_Avg >= paramLength / 32)
       {
-         thresh += 2;
-         if (dbg >= 3)
+         m_Threshold += 2;
+         if (m_DebugLevel)
          {
-            printf("Increased trigger level to %i\n", thresh);
+            printf("Increased trigger level to %i\n", m_Threshold);
          }
       }
-      else if (triggered_avg <= len / 64 && thresh > 50)
+      else if ((m_ProcessTriggered_Avg <= paramLength / 64) && (m_Threshold > 50))
       {
-         thresh -= 2;
-         if (dbg >= 3)
+         m_Threshold -= 2;
+         if (m_DebugLevel)
          {
-            printf("Decreased trigger level to %i\n", thresh);
+            printf("Decreased trigger level to %i\n", m_Threshold);
          }
       }
    }

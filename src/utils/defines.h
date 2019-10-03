@@ -44,4 +44,24 @@ enum class eDumpMode
    eUnknown
 };
 
+/**
+ * Threashold Modes for the demodulatores
+ */
+enum class eThresholMode
+{
+   eAuto = 0,
+   eUser = 1,
+   eUnknown
+};
+
+// used in engine class for reading i/q data from file
+constexpr auto RLS = 65536;
+
+// the sample rate (1.536 MHz)
+constexpr auto SDR_SAMPLE_RATE = 1536000; // in Hz
+
+// Used in TFA1 Demodulator
+constexpr int TFA1BITRATE = 38400; // in bit per second
+constexpr int BITPERIOD = ((SDR_SAMPLE_RATE / TFA1BITRATE) / 4);
+
 #endif

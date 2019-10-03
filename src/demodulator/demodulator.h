@@ -45,6 +45,10 @@ protected:
    // index of the last bit, used
    int m_IdxLastBit;
 
+   // last i/q values (for deviation calc)
+   int m_last_i;
+   int m_last_q;
+
 };
 
 #endif

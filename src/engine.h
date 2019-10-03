@@ -36,7 +36,7 @@ private:
 
    int filter_type;
    int dbg;
-   int read_dump;
+
    sdr *m_ptrSdr;
    int dumpmode;
    char *dumpfile;

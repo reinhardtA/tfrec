@@ -19,18 +19,18 @@
 //
 // Telegram format
 // 0x2d 0xd4 ID ID sT TT HH BB SS 0x56 CC
-// 2d d4: Sync bytes
-// ID(14:0): 15 bit ID of sensor (printed on the back and displayed after powerup)
-// ID(15) is either 1 or 0 (fixed, depends on the sensor)
-// s(3:0): Learning sequence 0...f, after learning fixed 8
-// TTT: Temperatur in BCD in .1degC steps, offset +40degC (-> -40...+60)
-// HH(6:0): rel. Humidity in % (binary coded, no BCD!)
-// BB(7): Low battery if =1
-// BB(6:4): 110 or 111 (for 3199)
-// SS(7:4): sequence number (0...f)
-// SS(3:0): 0000 (fixed)
-// 56: Type?
-// CC: CRC8 from ID to 0x56 (polynome x^8 + x^5 + x^4  + 1)
+// - 2d d4: Sync bytes
+// - ID(14:0): 15 bit ID of sensor (printed on the back and displayed after powerup)
+// - ID(15) is either 1 or 0 (fixed, depends on the sensor)
+// - s(3:0): Learning sequence 0...f, after learning fixed 8
+// - TTT: Temperatur in BCD in .1degC steps, offset +40degC (-> -40...+60)
+// - HH(6:0): rel. Humidity in % (binary coded, no BCD!)
+// - BB(7): Low battery if =1
+// - BB(6:4): 110 or 111 (for 3199)
+// - SS(7:4): sequence number (0...f)
+// - SS(3:0): 0000 (fixed)
+// - 56: Type?
+// - CC: CRC8 from ID to 0x56 (polynome x^8 + x^5 + x^4  + 1)
 
 //-------------------------------------------------------------------------
 tfa1_decoder::tfa1_decoder(sensor_e _type)
@@ -57,17 +57,17 @@ void tfa1_decoder::flush(int rssi, int offset)
    {
       // get the time
       time_t tCurrTime = time(0);
-      // print the time in a human readable format
-      printf("%s :", convertTime(tCurrTime).c_str());
+      // print the time in a human readable format and Unix Timestamp
+      printf("%s (%u) ", convertTime(tCurrTime).c_str(), (uint32_t) tCurrTime);
 
       if (dbg)
       {
-         printf("#%03i %u  ", snum++, (uint32_t) tCurrTime);
+         printf("#%03i ", snum++);
          for (int n = 0; n < 11; n++)
          {
             printf("%02x ", rdata[n]);
          }
-         printf("          ");
+         printf("-> ");
       }
       // ID
       int id = ((rdata[2] << 8) | rdata[3]) & 0x7fff;
@@ -126,16 +126,16 @@ void tfa1_decoder::flush(int rssi, int offset)
          // store the data
          store_data(sd);
 
-         printf("TFA1 ID %04x %+.1f %i%% seq %x lowbat %i RSSI %i\n"
-            , id // cant use from sd .. cause of warning TODO:
+         printf("TFA1 ID %04lx %+.1f %.0f%% seq %x lowbat %i RSSI %i\n"
+            , sd.id
             , sd.temp
-            , hum // cant use from sd .. cause of warning TODO:
+            , sd.humidity
             , sd.sequence
             , sd.alarm
             , sd.rssi
             );
 
-         fflush (stdout);
+         fflush(stdout);
       }
       else
       {
@@ -150,7 +150,7 @@ void tfa1_decoder::flush(int rssi, int offset)
             {
                printf("TFA1 BAD %i RSSI %i (SANITY)\n", bad, rssi);
             }
-            fflush (stdout);
+            fflush(stdout);
          }
       }
    }

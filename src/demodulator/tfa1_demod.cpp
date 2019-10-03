@@ -3,17 +3,16 @@
 
 #include "decoder/decoder.h"
 #include "demodulator/tfa1_demod.h"
-#include "utils/dsp_stuff.h"
 
-// real samplerate 1536kHz, after 4x-decimation 384kHz
-#define BITPERIOD ((1536000/38400)/4)
+#include "utils/defines.h"
+#include "utils/dsp_stuff.h"
 
 //-------------------------------------------------------------------------
 tfa1_demod::tfa1_demod(decoder *_dec)
    :
    demodulator(_dec)
 {
-   timeout_cnt = 0;
+   m_Timeout_Counter = 0;
    reset();
 }
 tfa1_demod::~tfa1_demod()
@@ -22,8 +21,8 @@ tfa1_demod::~tfa1_demod()
 void tfa1_demod::reset()
 {
    //TODO: 20190927 : added this lines - if this leads to trouble remove them
-   mark_lvl = 0;
-   rssi = 0;
+   m_Mark_Level = 0;
+   m_RSSI = 0;
    m_IdxLastBit = 0;
    m_last_i = 0;
    m_last_q = 0;
@@ -33,40 +32,42 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
 {
    int tTriggered = 0;
 
+   // check signal power against threashold
    if (pwr > thresh)
    {
-      timeout_cnt = 40 * BITPERIOD;
+      m_Timeout_Counter = 40 * BITPERIOD;
    }
 
-   if (timeout_cnt)
+   if (0 != m_Timeout_Counter)
    {
       tTriggered++;
-      int dev = fm_dev_nrzs(iq[0], iq[1], m_last_i, m_last_q);
+      int tDeviation = fm_dev_nrzs(iq[0], iq[1], m_last_i, m_last_q);
 
       // Hold maximum deviation of 0-edges for reference
-      if (dev > mark_lvl)
+      if (tDeviation > m_Mark_Level)
       {
-         mark_lvl = dev;
+         m_Mark_Level = tDeviation;
       }
       else
       {
-         mark_lvl = mark_lvl * 0.95;
+         // otherwise decrease the level by 5%
+         m_Mark_Level = m_Mark_Level * 0.95;
       }
 
       // remember peak for RSSI look-alike
-      if (mark_lvl > rssi)
+      if (m_Mark_Level > m_RSSI)
       {
-         rssi = mark_lvl;
+         m_RSSI = m_Mark_Level;
       }
 
-      timeout_cnt--;
+      m_Timeout_Counter--;
       // '0'-pulse if deviation drops below referenced threshold
-      if (dev < mark_lvl / 2)
+      if (tDeviation < m_Mark_Level / 2)
       {
          if (0 != m_IdxLastBit)
          {
             // Determine number of 1-bits depending on time between 0-pulses
-            if (index - m_IdxLastBit > 4)
+            if ((index - m_IdxLastBit) > 4)
             {
                for (int n = (2 * BITPERIOD) + 2; n <= (index - m_IdxLastBit); n += 2 * BITPERIOD)
                {
@@ -81,11 +82,11 @@ int tfa1_demod::demod(int thresh, int pwr, int index, int16_t *iq)
          }
       }
       // Flush data
-      if (0 == timeout_cnt)
+      if (0 == m_Timeout_Counter)
       {
-         m_ptrDecoder->flush(10 * log10(rssi), 0);
-         mark_lvl = 0;
-         rssi = 0;
+         m_ptrDecoder->flush(10 * log10(m_RSSI), 0);
+         m_Mark_Level = 0;
+         m_RSSI = 0;
          m_IdxLastBit = 0;
       }
    }

@@ -14,12 +14,9 @@ public:
    void reset();
 
 private:
-   int m_last_i;
-   int m_last_q;
+   int m_Timeout_Counter;
 
-   int timeout_cnt;
-
-   int mark_lvl;
-   int rssi;
+   int m_Mark_Level;
+   int m_RSSI;
 };
 #endif

@@ -60,7 +60,7 @@ int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
       /* Shaped PSK of AX5031 causes hard drop at phase changes for fm_dev_nrzs()
        -> detected minima are 0s, fillup with 1s since last 0
        */
-      dev = fm_dev_nrzs(iq[0], iq[1], last_i, last_q);
+      dev = fm_dev_nrzs(iq[0], iq[1], m_last_i, m_last_q);
       dev = iir->step(dev); // reduce noise
       if (!m_ptrDecoder->has_sync())
       {
@@ -121,8 +121,8 @@ int whb_demod::demod(int thresh, int pwr, int index, int16_t *iq)
          rssi = 0;
       }
    }
-   last_i = iq[0];
-   last_q = iq[1];
+   m_last_i = iq[0];
+   m_last_q = iq[1];
 
    step++;
    return triggered;

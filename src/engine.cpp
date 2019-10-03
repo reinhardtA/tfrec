@@ -10,14 +10,11 @@
 #include "utils/defines.h"
 #include "utils/dsp/downconvert.h"
 
-#define RLS 65536
-
 //-------------------------------------------------------------------------
 engine::engine(int _device, uint32_t paramFrequency, int gain, int filter, fsk_demod *_fsk, int _dbg, int _dumpmode, char *_dumpfile)
 {
    m_Logger = "ENG";
-   m_SampleRate = 1536000;
-   //m_SampleRate = 768000; // does also work with TFA1 ..
+   m_SampleRate = SDR_SAMPLE_RATE;
    m_Frequency = paramFrequency * 1000; // kHz->Hz
 
    filter_type = filter;
@@ -29,7 +26,7 @@ engine::engine(int _device, uint32_t paramFrequency, int gain, int filter, fsk_d
 
    if (0 != filter_type)
    {
-      puts("Wide filter");
+	   printf("(%s) %s : %s\n", "INF", m_Logger.c_str(), "using wider filter");
    }
 
    if (0 != dumpmode)
@@ -39,6 +36,7 @@ engine::engine(int _device, uint32_t paramFrequency, int gain, int filter, fsk_d
 
    if (dumpmode >= 0)
    {
+	   // create new SDR device and check against success
       m_ptrSdr = new sdr(_device, dbg, dumpmode, dumpfile);
       if (NULL != m_ptrSdr)
       {
@@ -74,7 +72,7 @@ engine::~engine()
 // dumpmode = 0 | 1 -> SDR Only | SAVE Data
 void engine::run(int timeout)
 {
-   FILE *tptrDumpData = NULL;
+   FILE * tptrDumpData = NULL;
 
    if (dumpmode >= 0)
    {
@@ -90,10 +88,11 @@ void engine::run(int timeout)
          exit(-1);
       }
    }
+
+   // dont move !!
    downconvert tDonwConverter(2);
 
    time_t start = time(0);
-
    // endless loop
    while (true)
    {
@@ -125,9 +124,7 @@ void engine::run(int timeout)
          m_ptrSdr->wait(data, len); // len=total sample number = #i+#q
       }
 
-      //printf("origin : %i\n", len);
       int ld = tDonwConverter.process_iq(data, len, filter_type);
-      //printf("down   : %i\n", ld);
       fsk->process(data, ld);
 
       if (NULL != tptrDumpData)
@@ -142,6 +139,7 @@ void engine::run(int timeout)
       // check for timeout hit
       if ((0 != timeout) && ((time(0) - start) > timeout))
       {
+    	  printf("(%s) %s : %s\n", "INF", m_Logger.c_str(), "timeout reached!");
          break;
       }
    }

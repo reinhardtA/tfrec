@@ -25,7 +25,6 @@ private:
    int bitcnt;
    int offset;
    int timeout_cnt;
-   int last_i, last_q;
    int last_dev;
    uint64_t step;
    uint64_t last_peak;
